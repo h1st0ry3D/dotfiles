@@ -9,6 +9,9 @@ Rows=1
 [Effect-desktopgrid]
 LayoutMode=1
 
+[Effect-overview]
+BorderActivate=9
+
 [Effect-presentwindows]
 LayoutMode=1
 
@@ -22,8 +25,16 @@ tiles={"layoutDirection":"horizontal","tiles":[{"width":0.25},{"width":0.5},{"wi
 padding=4
 tiles={"layoutDirection":"horizontal","tiles":[{"width":0.25},{"width":0.5},{"width":0.25}]}
 
+[Tiling][ebc51a22-45ca-4aba-9834-e41bfea89741][a842c248-cb1c-460a-ab5c-3039a91dfad7]
+padding=4
+tiles={"layoutDirection":"horizontal","tiles":[{"width":0.25},{"width":0.5},{"width":0.25}]}
+
+[Tiling][ebc51a22-45ca-4aba-9834-e41bfea89741][d26f4f3d-a168-4a00-9720-710e12a23eba]
+padding=4
+tiles={"layoutDirection":"horizontal","tiles":[{"width":0.25},{"width":0.5},{"width":0.25}]}
+
 [Xwayland]
-Scale=1.5
+Scale=1.7
 
 [org.kde.kdecoration2]
 ButtonsOnLeft=XIA
