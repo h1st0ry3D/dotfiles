@@ -15,6 +15,12 @@ BorderActivate=9
 [Effect-presentwindows]
 LayoutMode=1
 
+[Tiling]
+padding=4
+
+[Tiling][382f1645-4ae9-5cd6-98f2-cf3405257639]
+tiles={"layoutDirection":"horizontal","tiles":[{"width":0.25},{"width":0.5},{"width":0.25}]}
+
 [Tiling][541d428d-a777-52d7-b952-c247a96ad740]
 tiles={"layoutDirection":"horizontal","tiles":[{"width":0.25},{"width":0.5},{"width":0.25}]}
 
