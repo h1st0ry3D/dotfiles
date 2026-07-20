@@ -5,7 +5,7 @@
     "godot-ai": {
       "transport": "streamable-http",
       "url": "http://127.0.0.1:8000/mcp",
-      "lifecycle": "eager"
+      "lifecycle": "lazy"
     }
   }
 }

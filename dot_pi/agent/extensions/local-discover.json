@@ -9,7 +9,8 @@
       "apiKey": "oMLXapi",
       "type": "omlx",
       "context": 32768,
-      "maxTokens": 16384
+      "maxTokens": 16384,
+      "enabled": false
     },
     {
       "key": "llamacpp",

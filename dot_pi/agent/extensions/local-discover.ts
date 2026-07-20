@@ -77,8 +77,10 @@ interface ServerCfg {
   context?: number;
   maxTokens?: number;
   timeoutMs?: number;
+  enabled?: boolean; // default true; set false to skip this server at startup
 }
 interface LocalDiscoverConfig {
+  enabled?: boolean; // top-level gate; default true. false = skip all servers
   context?: number;
   maxTokens?: number;
   timeoutMs?: number;
@@ -372,12 +374,17 @@ async function discoverServer(
 // ---------------------------------------------------------------------------
 export default async function (pi: ExtensionAPI) {
   const cfg = await loadConfig();
+  if (cfg.enabled === false) {
+    console.warn("[local-discover] disabled via config — skipping all servers");
+    return;
+  }
   const globals = {
     context: cfg.context ?? 131072,
     maxTokens: cfg.maxTokens ?? 16384,
     timeoutMs: cfg.timeoutMs ?? 3000,
   };
-  await Promise.all(cfg.servers.map((s) => discoverServer(s, globals, pi)));
+  const active = cfg.servers.filter((s) => s.enabled !== false);
+  await Promise.all(active.map((s) => discoverServer(s, globals, pi)));
 }
 
 // silence unused import in some bundlers
