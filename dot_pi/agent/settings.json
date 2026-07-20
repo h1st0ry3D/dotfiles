@@ -5,7 +5,8 @@
   "lastChangelogVersion": "0.80.6",
   "packages": [
     "npm:@zackify/pi-claude-permissions",
-    "npm:pi-mcp-extension"
+    "npm:pi-mcp-extension",
+    "npm:pi-agents"
   ],
   "piClaudePermissions": {
     "defaultMode": "acceptEdits"
