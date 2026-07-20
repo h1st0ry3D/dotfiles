@@ -2,9 +2,10 @@
   "defaultProvider": "opencode-go",
   "defaultModel": "glm-5.2",
   "defaultThinkingLevel": "high",
-  "lastChangelogVersion": "0.80.2",
+  "lastChangelogVersion": "0.80.6",
   "packages": [
-    "npm:@zackify/pi-claude-permissions"
+    "npm:@zackify/pi-claude-permissions",
+    "npm:pi-mcp-extension"
   ],
   "piClaudePermissions": {
     "defaultMode": "acceptEdits"
