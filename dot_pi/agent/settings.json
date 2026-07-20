@@ -7,7 +7,8 @@
     "npm:@zackify/pi-claude-permissions",
     "npm:pi-mcp-extension",
     "npm:pi-agents",
-    "npm:pi-skill-dollar"
+    "npm:pi-skill-dollar",
+    "npm:pi-caveman"
   ],
   "piClaudePermissions": {
     "defaultMode": "acceptEdits"
