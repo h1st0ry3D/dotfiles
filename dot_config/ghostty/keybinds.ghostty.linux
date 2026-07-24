@@ -1,5 +1,5 @@
 keybind = ctrl+n=new_window
-keybind = ctrl+c=copy_to_clipboard
+keybind = ctrl+shift+c=copy_to_clipboard
 keybind = ctrl+v=paste_from_clipboard
 keybind = alt+l=text:@
 keybind = cmd+c=text:\x03
