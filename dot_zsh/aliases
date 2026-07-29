@@ -9,6 +9,7 @@ alias dot="cd $HOME/.config"
 alias c="chezmoi"
 alias d="hunk diff --watch"
 alias f="fresh"
+alias k='(){ kill-the-port $1 ;}'
 alias l="lazygit"
 alias h="herdr"
 alias o="opencode -c"
