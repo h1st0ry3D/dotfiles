@@ -1,18 +1,18 @@
 # cd path alias
 alias a="cd $HOME/agent"
-alias d="cd $HOME/.config"
 alias g="cd $HOME/Git"
-alias h="cd $HOME"
-alias j="cd $HOME/Git/journal"
+alias u="cd $HOME"
 alias n="cd $HOME/Notes/zettelkasten"
-alias p="cd $HOME/Git/python"
+alias dot="cd $HOME/.config"
 
 # tool alias
 alias c="chezmoi"
+alias d="hunk diff --watch"
 alias f="fresh"
 alias l="lazygit"
-alias m="micro"
-alias o="opencode"
+alias h="herdr"
+alias o="opencode -c"
+alias p="pi -c"
 alias docker="podman"
 alias pod="devcontainer"
 
