@@ -99,6 +99,7 @@ function extractContextK(m: LlamaSwapModel): number {
 }
 
 export default async function (pi: ExtensionAPI) {
+  try {
   const [modelsRes, running] = await Promise.all([
     fetch(`${API_BASE}/models`, { signal: AbortSignal.timeout(5000) }),
     fetchRunning(),
@@ -151,5 +152,11 @@ export default async function (pi: ExtensionAPI) {
       };
     }),
   });
-
+  } catch (err) {
+    // llama-swap is down — don't crash pi's startup, just skip provider registration.
+    console.error(
+      `[llama-swap] could not reach ${BASE} (${(err as Error)?.message ?? err}); ` +
+        `skipping provider registration. Start llama-swap or use "pi -ne" to run without extensions.`,
+    );
+  }
 }
