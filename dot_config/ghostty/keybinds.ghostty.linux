@@ -2,6 +2,7 @@ keybind = ctrl+n=new_window
 keybind = ctrl+shift+c=copy_to_clipboard
 keybind = ctrl+v=paste_from_clipboard
 keybind = alt+l=text:@
+keybind = alt+n=text:~
 keybind = cmd+c=text:\x03
 keybind = ctrl+d=new_split:right
 keybind = ctrl+shift+d=new_split:down
