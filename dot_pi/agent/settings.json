@@ -1,14 +1,15 @@
 {
   "defaultProvider": "opencode",
-  "defaultModel": "hy3-free",
+  "defaultModel": "deepseek-v4-flash-free",
   "defaultThinkingLevel": "high",
-  "lastChangelogVersion": "0.80.6",
+  "lastChangelogVersion": "0.83.0",
   "packages": [
     "npm:@zackify/pi-claude-permissions",
     "npm:pi-mcp-extension",
     "npm:pi-agents",
     "npm:pi-skill-dollar",
-    "npm:pi-caveman"
+    "npm:pi-caveman",
+    "npm:pi-web-access"
   ],
   "piClaudePermissions": {
     "defaultMode": "acceptEdits"
