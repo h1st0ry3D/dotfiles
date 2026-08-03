@@ -5,7 +5,11 @@ name = "vesper"
 auto_switch = false
 
 [keys]
+{{- if eq .chezmoi.os "darwin" }}
+prefix = "cmd+e"
+{{- else }}
 prefix = "ctrl+e"
+{{- end }}
 split_vertical = "prefix+d"
 split_horizontal = "prefix+shift+d"
 new_tab = "prefix+t"
