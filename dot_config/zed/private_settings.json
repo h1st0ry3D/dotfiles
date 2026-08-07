@@ -72,7 +72,9 @@
 		"button": true
 	},
 	"git_panel": {
-		"dock": "right",
+		"tree_view": true,
+        "group_by": "staging",
+        "dock": "right",
 		"fallback_branch_name": "develop"
 	},
 	"minimap": {
