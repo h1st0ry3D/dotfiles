@@ -1,94 +1,100 @@
 {
-  "proxy": "",
-  "edit_predictions": {
-    "provider": "copilot"
-  },
-  "git": {
-    "inline_blame": {
-      "enabled": false
-    },
-    "blame": {
-      "show_avatar": false
-    },
-    "branch_picker": {
-      "show_author_name": true
-    }
-  },
-  "markdown_preview_code_font_family": "JetBrainsMono Nerd Font",
-  "autosave": {
-    "after_delay": {
-      "milliseconds": 2000
-    }
-  },
-  "project_panel": {
-    "dock": "left"
-  },
-  "outline_panel": {
-    "dock": "right"
-  },
-  "collaboration_panel": {
-    "dock": "right"
-  },
-  "disable_ai": false,
-  "agent_servers": {
-    "pi-acp": {
-      "type": "registry"
-    },
-    "github-copilot-cli": {
-      "type": "registry"
-    },
-  },
-  "telemetry": {
-    "diagnostics": false,
-    "metrics": false,
-  },
-  "session": {
-    "trust_all_worktrees": true,
-  },
-  "vim_mode": false,
-  "terminal": {
-    "copy_on_select": true,
-    "shell": "system",
-    "font_size": 13.0,
-    "font_family": "JetBrainsMono Nerd Font",
-    "font_fallbacks": ["JetBrainsMonoNL Nerd Font", "JetBrainsMono Nerd Font Mono", "Consolas", "monospace"],
-  },
-  "node": {
-    "npm_path": "bun",
-  },
-  "agent": {
-    "tool_permissions": {
-      "default": "allow"
-    },
-    "dock": "left",
-    "default_profile": "write",
-    "enabled": true,
-    "button": true,
-  },
-  "git_panel": {
-    "dock": "right",
-    "fallback_branch_name": "develop",
-  },
-  "minimap": {
-    "show": "never",
-  },
-  "buffer_font_family": "JetBrainsMono Nerd Font",
-  "base_keymap": "JetBrains",
-  "icon_theme": "Zed (Default)",
-  "ui_font_size": 16,
-  "buffer_font_size": 14.0,
-  "theme": "Vesper Black",
-  "when_closing_with_no_tabs": "keep_window_open",
-  "code_lens": "off",
-  "languages": {
-    "JavaScript": { "formatter": { "language_server": { "name": "biome" } } },
-    "TypeScript": { "formatter": { "language_server": { "name": "biome" } } },
-    "HTML": { "formatter": { "language_server": { "name": "biome" } } },
-    "TSX": { "formatter": { "language_server": { "name": "biome" } } },
-    "JSON": { "formatter": { "language_server": { "name": "biome" } } },
-    "JSONC": { "formatter": { "language_server": { "name": "biome" } } },
-    "CSS": { "formatter": { "language_server": { "name": "biome" } } },
-    "YAML": { "formatter": { "language_server": { "name": "biome" } } },
-    "Markdown": { "formatter": { "language_server": { "name": "biome" } } }
-  }
+	"format_on_save": "on",
+	"proxy": "",
+	"edit_predictions": {
+		"provider": "copilot"
+	},
+	"git": {
+		"inline_blame": {
+			"enabled": false
+		},
+		"blame": {
+			"show_avatar": false
+		},
+		"branch_picker": {
+			"show_author_name": true
+		}
+	},
+	"markdown_preview_code_font_family": "JetBrainsMono Nerd Font",
+	"autosave": {
+		"after_delay": {
+			"milliseconds": 2000
+		}
+	},
+	"project_panel": {
+		"dock": "left"
+	},
+	"outline_panel": {
+		"dock": "right"
+	},
+	"collaboration_panel": {
+		"dock": "right"
+	},
+	"disable_ai": false,
+	"agent_servers": {
+		"pi-acp": {
+			"type": "registry"
+		},
+		"github-copilot-cli": {
+			"type": "registry"
+		}
+	},
+	"telemetry": {
+		"diagnostics": false,
+		"metrics": false
+	},
+	"session": {
+		"trust_all_worktrees": true
+	},
+	"vim_mode": false,
+	"terminal": {
+		"copy_on_select": true,
+		"shell": "system",
+		"font_size": 13.0,
+		"font_family": "JetBrainsMono Nerd Font",
+		"font_fallbacks": [
+			"JetBrainsMonoNL Nerd Font",
+			"JetBrainsMono Nerd Font Mono",
+			"Consolas",
+			"monospace"
+		]
+	},
+	"node": {
+		"npm_path": "bun"
+	},
+	"agent": {
+		"tool_permissions": {
+			"default": "allow"
+		},
+		"dock": "left",
+		"default_profile": "write",
+		"enabled": true,
+		"button": true
+	},
+	"git_panel": {
+		"dock": "right",
+		"fallback_branch_name": "develop"
+	},
+	"minimap": {
+		"show": "never"
+	},
+	"buffer_font_family": "JetBrainsMono Nerd Font",
+	"base_keymap": "JetBrains",
+	"icon_theme": "Zed (Default)",
+	"ui_font_size": 16,
+	"buffer_font_size": 14.0,
+	"theme": "Vesper Black",
+	"when_closing_with_no_tabs": "keep_window_open",
+	"code_lens": "off",
+	"languages": {
+		"JavaScript": { "formatter": { "language_server": { "name": "biome" } } },
+		"TypeScript": { "formatter": { "language_server": { "name": "biome" } } },
+		"HTML": { "formatter": { "language_server": { "name": "biome" } } },
+		"TSX": { "formatter": { "language_server": { "name": "biome" } } },
+		"JSON": { "formatter": { "language_server": { "name": "biome" } } },
+		"JSONC": { "formatter": { "language_server": { "name": "biome" } } },
+		"CSS": { "formatter": { "language_server": { "name": "biome" } } },
+		"YAML": { "formatter": { "language_server": { "name": "biome" } } },
+		"Markdown": { "formatter": { "language_server": { "name": "biome" } } }
+	}
 }
