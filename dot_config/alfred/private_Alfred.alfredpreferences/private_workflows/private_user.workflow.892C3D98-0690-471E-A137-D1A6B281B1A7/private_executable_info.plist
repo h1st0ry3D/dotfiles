@@ -27,7 +27,7 @@
 	<key>disabled</key>
 	<false/>
 	<key>name</key>
-	<string>Launch Ghostty</string>
+	<string>Launch Terminal</string>
 	<key>objects</key>
 	<array>
 		<dict>
