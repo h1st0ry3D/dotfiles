@@ -3,43 +3,64 @@ import type { ExtensionAPI } from "@earendil-works/pi-coding-agent";
 const KEY = "vision";
 const LS_BASE = "http://192.168.0.99:8080";
 
+// Session generation counter. Bumped on start/shutdown; async work checks it
+// before touching ctx — old ctx throws after /reload / newSession / fork.
+let sessionToken = 0;
+
 export default function (pi: ExtensionAPI) {
   pi.on("session_start", async (_event, ctx: any) => {
+    sessionToken++;
+    const token = sessionToken;
     const hasVision = await hasVisionCaps(ctx);
-    setIndicator(ctx, hasVision);
+    if (token !== sessionToken) return; // stale ctx — reload happened
+    setIndicatorSafe(ctx, hasVision);
   });
 
   pi.on("model_select", async (_event: any, ctx: any) => {
-    // Check immediately
-    let hasVision = await hasVisionCaps(ctx);
+    const token = sessionToken;
+    const hasVision = await hasVisionCaps(ctx);
+    if (token !== sessionToken) return;
     if (!hasVision) {
-      // Retry a few times — /props may not be ready right after model loads
-      hasVision = await pollProps(ctx.model?.id, 5, 1500);
+      // Retry a few times with our own sleeps — but bail if session changed
+      for (let i = 0; i < 5; i++) {
+        await sleep(1500);
+        if (token !== sessionToken) return;
+        if (await checkProps(ctx.model?.id)) {
+          if (token !== sessionToken) return;
+          setIndicatorSafe(ctx, true);
+          return;
+        }
+      }
     }
-    setIndicator(ctx, hasVision);
+    if (token !== sessionToken) return;
+    setIndicatorSafe(ctx, hasVision);
   });
 
-  pi.on("session_shutdown", async (_event: any, ctx: any) => {
-    ctx.ui.setStatus(KEY, undefined);
+  pi.on("session_shutdown", () => {
+    sessionToken++;
   });
 }
 
 async function hasVisionCaps(ctx: any): Promise<boolean> {
-  // 1) Check pi's own model definition — correct for built-in providers
-  //    and llama-swap models that were loaded at startup
+  // 1) pi's own model definition — correct once provider registration
+  //    knows about vision (llama-swap.ts heuristics)
   if (ctx.model?.input?.includes("image")) return true;
 
-  // 2) Immediate /props check
+  // 2) Mirror the llama-swap provider's config heuristics — avoids the
+  //    /props call that would auto-start the server
+  if (ctx.model?.provider === "llama-swap" && looksVision(ctx.model)) return true;
+
+  // 3) /props on the running backend (may auto-start for non-running)
   return checkProps(ctx.model?.id);
 }
 
-async function pollProps(modelId: string | undefined, retries: number, delayMs: number): Promise<boolean> {
-  if (!modelId) return false;
-  for (let i = 0; i < retries; i++) {
-    await sleep(delayMs);
-    if (await checkProps(modelId)) return true;
-  }
-  return false;
+/** Matches llama-swap.ts provider registration heuristics */
+function looksVision(model: any): boolean {
+  const desc = String(model.description ?? "").toLowerCase();
+  if (/\bno\s+mmproj/.test(desc)) return false;
+  if (String(model.name ?? "").toLowerCase().includes("vision")) return true;
+  if (String(model.id ?? "").toLowerCase().includes("vision")) return true;
+  return desc.includes("mmproj") || desc.includes("multimodal");
 }
 
 async function checkProps(modelId: string | undefined): Promise<boolean> {
@@ -56,11 +77,15 @@ async function checkProps(modelId: string | undefined): Promise<boolean> {
   }
 }
 
-function setIndicator(ctx: any, hasVision: boolean) {
-  if (hasVision) {
-    ctx.ui.setStatus(KEY, ctx.ui.theme.fg("accent", "👁"));
-  } else {
-    ctx.ui.setStatus(KEY, undefined);
+function setIndicatorSafe(ctx: any, hasVision: boolean) {
+  try {
+    if (hasVision) {
+      ctx.ui.setStatus(KEY, ctx.ui.theme.fg("accent", "👁"));
+    } else {
+      ctx.ui.setStatus(KEY, undefined);
+    }
+  } catch {
+    // stale ctx (post-reload) — session_start in the new runtime will re-set
   }
 }
 

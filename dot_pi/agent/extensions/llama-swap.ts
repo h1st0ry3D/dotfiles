@@ -4,6 +4,21 @@ const BASE = "http://192.168.0.99:8080";
 const API_BASE = `${BASE}/v1`;
 const PROVIDER_ID = "llama-swap";
 
+/**
+ * Vision capability is determined by the yaml config (--mmproj presence),
+ * not by load state. /props is only trustworthy for RUNNING models and
+ * auto-starts servers for non-running ones (expensive side effect).
+ * Fall back to name/description heuristics so vision models register as
+ * multimodal even when not loaded at pi startup.
+ */
+function looksVision(m: LlamaSwapModel): boolean {
+  const desc = (m.description ?? "").toLowerCase();
+  if (/\bno\s+mmproj/.test(desc)) return false;
+  if ((m.name ?? "").toLowerCase().includes("vision")) return true;
+  if (m.id.toLowerCase().includes("vision")) return true;
+  return desc.includes("mmproj") || desc.includes("multimodal");
+}
+
 interface LlamaSwapModel {
   id: string;
   name?: string;
@@ -135,7 +150,7 @@ export default async function (pi: ExtensionAPI) {
       const feat = featMap.get(m.id);
       const ctx = feat?.ctx ?? 128000;
       const isLoaded = running.has(m.id);
-      const hasVision = feat?.hasVision ?? false;
+      const hasVision = (feat?.hasVision ?? false) || looksVision(m);
       const supportsReasoning = feat?.supportsReasoning ?? false;
       const nPredict = feat?.nPredict;
       const maxTokens = nPredict && nPredict > 0 ? Math.min(nPredict, 32768) : Math.min(ctx, 32768);
