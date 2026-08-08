@@ -17,9 +17,9 @@
     "blockImages": false
   },
   "terminal": {
-    "showImages": false
+    "showImages": true
   },
-  "hideThinkingBlock": true,
+  "hideThinkingBlock": false,
   "quietStartup": true,
   "steeringMode": "all",
   "followUpMode": "all",
