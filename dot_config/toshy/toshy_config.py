@@ -4023,6 +4023,8 @@ keymap("User hardware keys", {
     # i3 integration: Cmd+Shift+Up/Down -> Alt+Shift+Up/Down (i3 fullscreen/reset)
     C("Shift-RC-Up"):     C("Shift-Alt-Up"),     # Cmd+Shift+Up = fullscreen tile
     C("Shift-RC-Down"):   C("Shift-Alt-Down"),   # Cmd+Shift+Down = reset size
+    # mac style: left Alt/Option+L types @ (German @ = right-Option/AltGr+Q)
+    C("Alt-l"):           C("RAlt-q"),
 }, when = lambda ctx:
     cnfg.screen_has_focus and
     not ctx_app_is_remote
