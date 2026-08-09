@@ -195,3 +195,9 @@ bindsym $mod+r mode "resize"
 bar {
         status_command i3status
 }
+
+# Gray focus colors (replaces i3 default blue)
+client.focused          #5f676a #5f676a #ffffff #484e50 #5f676a
+client.focused_inactive #333333 #333333 #d0d0d0 #333333 #333333
+client.unfocused        #2b2b2b #2b2b2b #b0b0b0 #2b2b2b #2b2b2b
+client.urgent           #900000 #900000 #ffffff #900000 #900000
