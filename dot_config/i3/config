@@ -59,6 +59,8 @@ bindsym $mod+Return exec --no-startup-id ghostty
 
 # kill focused window
 bindsym $mod+Shift+q kill
+# Toshy already converts Cmd+Q (mac keyboard) to Alt+F4, so i3 must honor it
+bindsym Mod1+F4 kill
 
 # start dmenu (a program launcher)
 bindsym $mod+d focus mode_toggle
@@ -88,9 +90,12 @@ bindsym $mod+Shift+odiaeresis move right
 
 # alternatively, you can use the cursor keys:
 bindsym $mod+Shift+Left move left
-bindsym $mod+Shift+Down move down
-bindsym $mod+Shift+Up move up
 bindsym $mod+Shift+Right move right
+
+# full screen tile: maximize focused container (Mod1 = Option/Alt)
+bindsym $mod+Shift+Up fullscreen enable
+# reset size: restore previous geometry/layout
+bindsym $mod+Shift+Down fullscreen disable
 
 # split in horizontal orientation
 bindsym $mod+h split h
@@ -194,10 +199,22 @@ bindsym $mod+r mode "resize"
 # finds out, if available)
 bar {
         status_command i3status
+        position top
+        font pango:monospace 10
+        colors {
+                background #1e1e2e
+                statusline #cdd6f4
+                separator  #585b70
+                focused_workspace  #89b4fa #313244 #cdd6f4 #89b4fa #313244
+                active_workspace   #45475a #45475a #cdd6f4 #45475a #45475a
+                inactive_workspace #313244 #313244 #a6adc8 #313244 #313244
+                urgent_workspace   #f38ba8 #f38ba8 #1e1e2e #f38ba8 #f38ba8
+                binding_mode       #f9e2af #f9e2af #1e1e2e #f9e2af #f9e2af
+        }
 }
 
-# Gray focus colors (replaces i3 default blue)
-client.focused          #5f676a #5f676a #ffffff #484e50 #5f676a
-client.focused_inactive #333333 #333333 #d0d0d0 #333333 #333333
-client.unfocused        #2b2b2b #2b2b2b #b0b0b0 #2b2b2b #2b2b2b
-client.urgent           #900000 #900000 #ffffff #900000 #900000
+# Dark theme (Catppuccin Mocha palette)
+client.focused          #89b4fa #45475a #cdd6f4 #89b4fa #45475a
+client.focused_inactive #45475a #313244 #a6adc8 #45475a #313244
+client.unfocused        #313244 #313244 #a6adc8 #313244 #313244
+client.urgent           #f38ba8 #f38ba8 #1e1e2e #f38ba8 #f38ba8
