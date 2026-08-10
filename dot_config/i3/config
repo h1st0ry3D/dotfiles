@@ -34,6 +34,15 @@ exec --no-startup-id xss-lock --transfer-sleep-lock -- i3lock --nofork
 # and nm-applet is a desktop environment-independent system tray GUI for it.
 exec --no-startup-id nm-applet
 
+# KDE power stack for i3: krunner shutdown/restart + KSMServer logout dialog
+# need these; dex skips them (OnlyShowIn=KDE) in i3 sessions.
+exec --no-startup-id /usr/lib/x86_64-linux-gnu/libexec/org_kde_powerdevil
+exec --no-startup-id /usr/lib/x86_64-linux-gnu/libexec/polkit-kde-authentication-agent-1
+
+# Bulletproof power-off / reboot (logind; active session needs no polkit auth).
+# power menu (Alt+Shift+Esc): shutdown / restart / logout, direct action on click
+bindsym $mod+Shift+Escape exec --no-startup-id "i3-nagbar -t warning -m 'Power menu: pick an action.' -B 'Shutdown' 'systemctl poweroff' -B 'Restart' 'systemctl reboot' -B 'Logout' 'i3-msg exit'"
+
 # SDDM reuses its greeter X server for the session, so the greeter's theme
 # background stays painted on the root window. i3 never repaints the root
 # window by default -> leftover SDDM background shows through as "wallpaper".
