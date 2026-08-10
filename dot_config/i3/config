@@ -68,7 +68,8 @@ bindsym $mod+Return exec --no-startup-id ghostty
 
 # kill focused window
 bindsym $mod+Shift+q kill
-# Toshy already converts Cmd+Q (mac keyboard) to Alt+F4, so i3 must honor it
+# Toshy uninstalled (2026-08-10) — Cmd+Q no longer produces Alt+F4.
+# keep the binding; harmless, and usable via Mod1+F4 directly.
 bindsym Mod1+F4 kill
 
 # start dmenu (a program launcher)
@@ -79,7 +80,7 @@ bindsym $mod+d focus mode_toggle
 # .desktop file. It is a wrapper around dmenu, so you need that installed.
 # bindcode $mod+40 exec --no-startup-id i3-dmenu-desktop
 
-# change focus (Alt+L freed for typing @ via Toshy; use Alt+Up instead)
+# change focus
 bindsym $mod+j focus left
 bindsym $mod+k focus down
 bindsym $mod+odiaeresis focus right
@@ -88,6 +89,7 @@ bindsym $mod+odiaeresis focus right
 bindsym $mod+Left focus left
 bindsym $mod+Down focus down
 bindsym $mod+Up focus up
+bindsym $mod+l focus up  # restored after Toshy uninstall (was AltGr+Q for @ before)
 bindsym $mod+Right focus right
 
 # move focused window
