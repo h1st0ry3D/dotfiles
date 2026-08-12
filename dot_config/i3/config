@@ -12,7 +12,9 @@
 set $mod Mod1
 
 # Apple German keyboard, no dead keys.
-exec --no-startup-id setxkbmap -layout de -variant mac_nodeadkeys
+# Swap Cmd<->Ctrl so Cmd IS a real Ctrl for apps (Cmd+T, Cmd+R, Cmd+W... all work),
+# and the physical Ctrl key becomes the i3 Meta/Super (Mod4).
+exec --no-startup-id setxkbmap -layout de -variant mac_nodeadkeys -option ctrl:swap_lwin_lctl,ctrl:swap_rwin_rctl
 # F-keys primary (optional): echo 2 | sudo tee /sys/module/hid_apple/parameters/fnmode
 #   or: options hid_apple fnmode=2 in /etc/modprobe.d/hid_apple.conf
 #
@@ -42,13 +44,6 @@ exec --no-startup-id xss-lock --transfer-sleep-lock -- i3lock --nofork
 # and nm-applet is a desktop environment-independent system tray GUI for it.
 exec --no-startup-id nm-applet
 
-# KDE power stack for i3: krunner shutdown/restart + KSMServer logout dialog
-# need these; dex skips them (OnlyShowIn=KDE) in i3 sessions.
-exec --no-startup-id /usr/lib/x86_64-linux-gnu/libexec/org_kde_powerdevil
-exec --no-startup-id /usr/lib/x86_64-linux-gnu/libexec/polkit-kde-authentication-agent-1
-
-# Bulletproof power-off / reboot (logind; active session needs no polkit auth).
-
 # SDDM reuses its greeter X server for the session, so the greeter's theme
 # background stays painted on the root window. i3 never repaints the root
 # window by default -> leftover SDDM background shows through as "wallpaper".
@@ -66,15 +61,16 @@ bindsym XF86AudioMicMute exec --no-startup-id pactl set-source-mute @DEFAULT_SOU
 bindsym XF86MonBrightnessDown exec --no-startup-id brightnessctl set 20%-
 bindsym XF86MonBrightnessUp   exec --no-startup-id brightnessctl set +20%
 
-# Mac-like Cmd shortcuts. Cmd = Super (Mod4). Needs xdotool for copy/paste.
-# --release + --clearmodifiers so the Super press isn't passed to the app.
-bindsym --release Mod4+c exec --no-startup-id xdotool key --clearmodifiers Ctrl+Insert
-bindsym --release Mod4+x exec --no-startup-id xdotool key --clearmodifiers Shift+Delete
-bindsym --release Mod4+v exec --no-startup-id xdotool key --clearmodifiers Shift+Insert
-bindsym Mod4+w kill
-bindsym Mod4+q kill
+# Mac-like Cmd shortcuts. After the Cmd<->Ctrl swap, the physical Cmd key now sends
+# Control, so these bind to the Control modifier. xdotool translates to the keys
+# apps expect (Ctrl+Insert copy, Shift+Insert paste, Ctrl+w close tab, @).
+# --release + --clearmodifiers so the modifier press isn't passed to the app.
+bindsym --release Control+c exec --no-startup-id xdotool key --clearmodifiers Ctrl+Insert
+bindsym --release Control+x exec --no-startup-id xdotool key --clearmodifiers Shift+Delete
+bindsym --release Control+v exec --no-startup-id xdotool key --clearmodifiers Shift+Insert
+bindsym Control+q kill
 bindsym --release $mod+l exec --no-startup-id xdotool key --clearmodifiers at   # Alt+L types @
-bindsym Mod4+Shift+Escape exec --no-startup-id ~/.config/i3/powermenu.sh
+bindsym Control+Shift+Escape exec --no-startup-id ~/.config/i3/powermenu.sh
 
 # Use Mouse+$mod to drag floating windows to their wanted position
 floating_modifier $mod
@@ -138,7 +134,7 @@ bindsym $mod+f fullscreen toggle
 
 # change container layout (stacked, tabbed, toggle split)
 bindsym $mod+s layout stacking
-bindsym $mod+w layout tabbed
+#bindsym $mod+w layout tabbed   # freed: Alt+W passes through to apps (close tabs)
 bindsym $mod+e layout toggle split
 
 # toggle tiling / floating
