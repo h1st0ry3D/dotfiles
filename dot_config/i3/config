@@ -14,7 +14,7 @@ set $mod Mod1
 # Apple German keyboard, no dead keys.
 # Swap Cmd<->Ctrl so Cmd IS a real Ctrl for apps (Cmd+T, Cmd+R, Cmd+W... all work),
 # and the physical Ctrl key becomes the i3 Meta/Super (Mod4).
-exec --no-startup-id setxkbmap -layout de -variant mac_nodeadkeys -option ctrl:swap_lwin_lctl,ctrl:swap_rwin_rctl
+exec --no-startup-id setxkbmap -layout de -variant mac_nodeadkeys -option ctrl:swap_lwin_lctl,ctrl:swap_rwin_rctl,lv3:caps_switch
 # F-keys primary (optional): echo 2 | sudo tee /sys/module/hid_apple/parameters/fnmode
 #   or: options hid_apple fnmode=2 in /etc/modprobe.d/hid_apple.conf
 #
