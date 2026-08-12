@@ -1,7 +1,7 @@
 {
-  "defaultProvider": "llama-swap",
-  "defaultModel": "btl4-188k",
-  "defaultThinkingLevel": "off",
+  "defaultProvider": "opencode-go",
+  "defaultModel": "gpt-5.6-luna",
+  "defaultThinkingLevel": "max",
   "packages": [
     "npm:@zackify/pi-claude-permissions",
     "npm:pi-mcp-extension",
@@ -10,7 +10,10 @@
     "npm:pi-web-access"
   ],
   "piClaudePermissions": {
-    "defaultMode": "acceptEdits"
+    "defaultMode": "bypassPermissions"
+  },
+  "cwdEdit": {
+    "enabled": true
   },
   "theme": "dark",
   "images": {
