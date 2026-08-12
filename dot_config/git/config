@@ -20,3 +20,5 @@
     whitespace-error-style = "gray" reverse
 [push]
 	autoSetupRemote = true
+[pull]
+	rebase = false
