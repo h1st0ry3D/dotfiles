@@ -11,6 +11,14 @@
 
 set $mod Mod1
 
+# Apple keyboard: proper §/±, backtick, Option-as-AltGr.
+exec --no-startup-id setxkbmap -layout us -variant mac
+# F-keys primary (optional): echo 2 | sudo tee /sys/module/hid_apple/parameters/fnmode
+#   or: options hid_apple fnmode=2 in /etc/modprobe.d/hid_apple.conf
+#
+# Cmd keys stay Super (Mod4). Mac-like shortcuts below use Mod4 + xdotool.
+# (No Ctrl-swap: can't drive i3 close/quit, breaks terminal copy.)
+
 # Font for window titles. Will also be used by the bar unless a different font
 # is used in the bar {} block below.
 font pango:monospace 10
@@ -40,8 +48,6 @@ exec --no-startup-id /usr/lib/x86_64-linux-gnu/libexec/org_kde_powerdevil
 exec --no-startup-id /usr/lib/x86_64-linux-gnu/libexec/polkit-kde-authentication-agent-1
 
 # Bulletproof power-off / reboot (logind; active session needs no polkit auth).
-# power menu (Alt+Shift+Esc): shutdown / restart / logout, direct action on click
-bindsym $mod+Shift+Escape exec --no-startup-id "i3-nagbar -t warning -m 'Power menu: pick an action.' -B 'Shutdown' 'systemctl poweroff' -B 'Restart' 'systemctl reboot' -B 'Logout' 'i3-msg exit'"
 
 # SDDM reuses its greeter X server for the session, so the greeter's theme
 # background stays painted on the root window. i3 never repaints the root
@@ -55,6 +61,19 @@ bindsym XF86AudioRaiseVolume exec --no-startup-id pactl set-sink-volume @DEFAULT
 bindsym XF86AudioLowerVolume exec --no-startup-id pactl set-sink-volume @DEFAULT_SINK@ -10% && $refresh_i3status
 bindsym XF86AudioMute exec --no-startup-id pactl set-sink-mute @DEFAULT_SINK@ toggle && $refresh_i3status
 bindsym XF86AudioMicMute exec --no-startup-id pactl set-source-mute @DEFAULT_SOURCE@ toggle && $refresh_i3status
+
+# Screen brightness (MacBooks: xbacklight is dead, use brightnessctl)
+bindsym XF86MonBrightnessDown exec --no-startup-id brightnessctl set 20%-
+bindsym XF86MonBrightnessUp   exec --no-startup-id brightnessctl set +20%
+
+# Mac-like Cmd shortcuts. Cmd = Super (Mod4). Needs xdotool for copy/paste.
+# --release + --clearmodifiers so the Super press isn't passed to the app.
+bindsym --release Mod4+c exec --no-startup-id xdotool key --clearmodifiers Ctrl+Insert
+bindsym --release Mod4+x exec --no-startup-id xdotool key --clearmodifiers Shift+Delete
+bindsym --release Mod4+v exec --no-startup-id xdotool key --clearmodifiers Shift+Insert
+bindsym Mod4+w kill
+bindsym Mod4+q kill
+bindsym Mod4+Shift+Escape exec --no-startup-id ~/.config/i3/powermenu.sh
 
 # Use Mouse+$mod to drag floating windows to their wanted position
 floating_modifier $mod
@@ -89,7 +108,7 @@ bindsym $mod+odiaeresis focus right
 bindsym $mod+Left focus left
 bindsym $mod+Down focus down
 bindsym $mod+Up focus up
-bindsym $mod+l focus up  # restored after Toshy uninstall (was AltGr+Q for @ before)
+bindsym $mod+l focus up
 bindsym $mod+Right focus right
 
 # move focused window
@@ -124,8 +143,8 @@ bindsym $mod+e layout toggle split
 # toggle tiling / floating
 bindsym $mod+Shift+space floating toggle
 
-# change focus between tiling / floating windows
-bindsym $mod+space exec --no-startup-id krunner
+# start dmenu (a program launcher) on Mod1+Space
+bindsym $mod+space exec --no-startup-id dmenu_run
 
 
 # focus the parent container
