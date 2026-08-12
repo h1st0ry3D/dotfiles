@@ -88,6 +88,10 @@ bindsym $mod+Shift+q kill
 # keep the binding; harmless, and usable via Mod1+F4 directly.
 bindsym Mod1+F4 kill
 
+# Clipboard history via clipmenu/dmenu
+exec --no-startup-id clipmenud
+bindsym Control+y exec --no-startup-id clipmenu
+
 # start dmenu (a program launcher)
 bindsym $mod+d focus mode_toggle
 # A more modern dmenu replacement is rofi:
