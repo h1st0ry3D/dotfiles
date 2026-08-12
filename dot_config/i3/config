@@ -11,8 +11,8 @@
 
 set $mod Mod1
 
-# Apple keyboard: proper §/±, backtick, Option-as-AltGr.
-exec --no-startup-id setxkbmap -layout us -variant mac
+# Apple German keyboard, no dead keys.
+exec --no-startup-id setxkbmap -layout de -variant mac_nodeadkeys
 # F-keys primary (optional): echo 2 | sudo tee /sys/module/hid_apple/parameters/fnmode
 #   or: options hid_apple fnmode=2 in /etc/modprobe.d/hid_apple.conf
 #
@@ -73,6 +73,7 @@ bindsym --release Mod4+x exec --no-startup-id xdotool key --clearmodifiers Shift
 bindsym --release Mod4+v exec --no-startup-id xdotool key --clearmodifiers Shift+Insert
 bindsym Mod4+w kill
 bindsym Mod4+q kill
+bindsym --release $mod+l exec --no-startup-id xdotool key --clearmodifiers at   # Alt+L types @
 bindsym Mod4+Shift+Escape exec --no-startup-id ~/.config/i3/powermenu.sh
 
 # Use Mouse+$mod to drag floating windows to their wanted position
@@ -108,7 +109,7 @@ bindsym $mod+odiaeresis focus right
 bindsym $mod+Left focus left
 bindsym $mod+Down focus down
 bindsym $mod+Up focus up
-bindsym $mod+l focus up
+#bindsym $mod+l focus up
 bindsym $mod+Right focus right
 
 # move focused window
