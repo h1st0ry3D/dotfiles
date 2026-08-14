@@ -31,6 +31,10 @@ tiles={"layoutDirection":"horizontal","tiles":[{"width":0.25},{"width":0.5},{"wi
 padding=4
 tiles={"layoutDirection":"horizontal","tiles":[{"width":0.25},{"width":0.5},{"width":0.25}]}
 
+[Tiling][ebc51a22-45ca-4aba-9834-e41bfea89741][748f0812-4d79-4042-9a8a-a9137057519e]
+padding=4
+tiles={"layoutDirection":"horizontal","tiles":[{"width":0.25},{"width":0.5},{"width":0.25}]}
+
 [Tiling][ebc51a22-45ca-4aba-9834-e41bfea89741][a842c248-cb1c-460a-ab5c-3039a91dfad7]
 padding=4
 tiles={"layoutDirection":"horizontal","tiles":[{"width":0.25},{"width":0.5},{"width":0.25}]}
@@ -40,7 +44,7 @@ padding=4
 tiles={"layoutDirection":"horizontal","tiles":[{"width":0.25},{"width":0.5},{"width":0.25}]}
 
 [Xwayland]
-Scale=1.7
+Scale=1
 
 [org.kde.kdecoration2]
 ButtonsOnLeft=XIA
