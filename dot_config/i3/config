@@ -145,7 +145,7 @@ bindsym $mod+e layout toggle split
 bindsym $mod+Shift+space floating toggle
 
 # start dmenu (a program launcher) on Mod1+Space
-bindsym $mod+space exec --no-startup-id dmenu_run
+bindsym $mod+space exec --no-startup-id ~/.local/bin/dmenu_run_freq
 
 
 # focus the parent container
