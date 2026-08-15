@@ -6,17 +6,23 @@ const PROVIDER_ID = "llama-swap";
 
 /**
  * Vision capability is determined by the yaml config (--mmproj presence),
- * not by load state. /props is only trustworthy for RUNNING models and
- * auto-starts servers for non-running ones (expensive side effect).
- * Fall back to name/description heuristics so vision models register as
- * multimodal even when not loaded at pi startup.
+ * not by load state. For running models the upstream llama-server /props
+ * is authoritative; fall back to name/description heuristics so vision
+ * models register as multimodal even when not loaded at pi startup.
  */
 function looksVision(m: LlamaSwapModel): boolean {
   const desc = (m.description ?? "").toLowerCase();
   if (/\bno\s+mmproj/.test(desc)) return false;
+  if (desc.includes("vision: yes")) return true;
+  if (desc.includes("vision: no")) return false;
   if ((m.name ?? "").toLowerCase().includes("vision")) return true;
   if (m.id.toLowerCase().includes("vision")) return true;
   return desc.includes("mmproj") || desc.includes("multimodal");
+}
+
+/** llama-swap writes "reasoning: on/off" per model in the description. */
+function descReasoning(m: LlamaSwapModel): boolean {
+  return /\breasoning:\s*on\b/i.test(m.description ?? "");
 }
 
 interface LlamaSwapModel {
@@ -48,10 +54,10 @@ interface RunningEntry {
   ttl?: number;
 }
 
-/** Fetch /running to see which models are loaded */
-async function fetchRunning(): Promise<Map<string, RunningEntry>> {
+/** Fetch /running: which models are loaded, plus the launch cmd + upstream proxy URL. */
+async function fetchRunning(signal?: AbortSignal): Promise<Map<string, RunningEntry>> {
   try {
-    const res = await fetch(`${BASE}/running`, { signal: AbortSignal.timeout(3000) });
+    const res = await fetch(`${BASE}/running`, { signal: signal ?? AbortSignal.timeout(3000) });
     if (!res.ok) return new Map();
     const body = await res.json() as { running?: RunningEntry[] };
     const map = new Map<string, RunningEntry>();
@@ -64,20 +70,33 @@ async function fetchRunning(): Promise<Map<string, RunningEntry>> {
   }
 }
 
-/** Fetch /props for exact context + vision + reasoning + max output from the backend */
-async function fetchModelProps(modelId: string): Promise<ModelFeatures | undefined> {
+/**
+ * Parse the context size the llama-server was actually started with.
+ * The launch cmd from /running is the authoritative server config (e.g. "-c 150000"),
+ * so no extra request is needed for the exact value of a loaded model.
+ */
+function parseCmdContext(cmd?: string): number | undefined {
+  if (!cmd) return undefined;
+  const m =
+    cmd.match(/(?:^|\s)--ctx-size(?:=|\s+)(\d+)/) ?? cmd.match(/(?:^|\s)-c(?:=|\s+)(\d+)/);
+  const n = m ? parseInt(m[1], 10) : NaN;
+  return Number.isFinite(n) && n > 0 ? n : undefined;
+}
+
+/**
+ * Fetch /props from the running llama-server itself (proxy URL from /running).
+ * Cheap and side-effect free, unlike llama-swap's /props?model= which
+ * auto-starts servers for non-running models.
+ */
+async function fetchUpstreamProps(proxy: string, signal?: AbortSignal): Promise<ModelFeatures | undefined> {
   try {
-    const res = await fetch(`${BASE}/props?model=${encodeURIComponent(modelId)}`, {
-      signal: AbortSignal.timeout(3000),
-    });
+    const base = proxy.replace(/\/+$/, "");
+    const res = await fetch(`${base}/props`, { signal: signal ?? AbortSignal.timeout(3000) });
     if (!res.ok) return undefined;
     const body = await res.json() as {
       default_generation_settings?: {
         n_ctx?: number;
-        params?: {
-          n_predict?: number;
-          reasoning_format?: string;
-        };
+        params?: { n_predict?: number };
       };
       modalities?: { vision?: boolean };
       chat_template_caps?: { supports_preserve_reasoning?: boolean };
@@ -93,48 +112,114 @@ async function fetchModelProps(modelId: string): Promise<ModelFeatures | undefin
   }
 }
 
+/**
+ * Fallback for models that are not loaded: parse the context size from
+ * name/description. llama-swap writes "ctx: 150k" / "ctx: 1m" in
+ * descriptions and "NNNk" / "NNNm" in model ids. k/m are decimal:
+ * 150k -> 150000, 1m -> 1000000 (llama-swap starts servers with
+ * -c 150000). Note: "1m" in quant names (iq1m, udiq2m) must not match —
+ * the "ctx:" patterns above win because descriptions are scanned first.
+ */
 function extractContextK(m: LlamaSwapModel): number {
   if (typeof m.context_window === "number" && m.context_window > 0) return m.context_window;
   if (typeof m.max_model_len === "number" && m.max_model_len > 0) return m.max_model_len;
   const lsCtx = m.meta?.llamaswap?.context_length;
   if (typeof lsCtx === "number" && lsCtx > 0) return lsCtx;
   const sources = [m.description, m.name, m.id].filter(Boolean) as string[];
+  const scale = (v: number, unit: string) => (unit === "m" ? v * 1_000_000 : v * 1000);
   for (const s of sources) {
-    const m2 = s.match(/(\d+)\s*K\s*(?:ctx|context|max\s*ctx|native\s*ctx)/i);
-    if (m2) return parseInt(m2[1], 10) * 1024;
+    const m2 = s.match(/ctx:\s*(\d+)\s*([km])\b/i);
+    if (m2) return scale(parseInt(m2[1], 10), m2[2].toLowerCase());
   }
   for (const s of sources) {
-    const m2 = s.match(/(\d+)\s*K/);
+    const m2 = s.match(/(\d+)\s*([km])\s*(?:ctx|context)/i);
+    if (m2) return scale(parseInt(m2[1], 10), m2[2].toLowerCase());
+  }
+  for (const s of sources) {
+    const m2 = s.match(/(\d+)\s*([km])\b/i);
     if (m2) {
       const val = parseInt(m2[1], 10);
-      if (val >= 4 && val <= 1024) return val * 1024;
+      if (val >= 4 && val <= 1024) return scale(val, m2[2].toLowerCase());
     }
   }
   return 128000;
 }
 
-export default async function (pi: ExtensionAPI) {
-  try {
+/**
+ * Discover models + per-model context/vision/reasoning from llama-swap.
+ *
+ * Context resolution per model:
+ *   loaded:  upstream llama-server n_ctx  ->  launch cmd -c  ->  name/desc heuristic
+ *   unloaded:  name/desc heuristic
+ */
+async function buildModels(signal?: AbortSignal): Promise<{
+  id: string;
+  name: string;
+  reasoning: boolean;
+  input: ("text" | "image")[];
+  cost: { input: number; output: number; cacheRead: number; cacheWrite: number };
+  contextWindow: number;
+  maxTokens: number;
+}[]> {
   const [modelsRes, running] = await Promise.all([
-    fetch(`${API_BASE}/models`, { signal: AbortSignal.timeout(5000) }),
-    fetchRunning(),
+    fetch(`${API_BASE}/models`, { signal: signal ?? AbortSignal.timeout(5000) }),
+    fetchRunning(signal),
   ]);
-
   const body = await modelsRes.json() as { data: LlamaSwapModel[] };
 
-  const featResults = await Promise.all(
-    body.data.map(async (m) => {
-      const props = running.has(m.id) ? await fetchModelProps(m.id) : undefined;
-      return {
-        id: m.id,
-        ctx: props?.n_ctx ?? extractContextK(m),
-        hasVision: props?.modalities?.vision ?? false,
-        supportsReasoning: props?.supportsReasoning ?? false,
-        nPredict: props?.n_predict,
-      };
+  const feats = new Map<string, ModelFeatures>();
+  await Promise.all(
+    [...running.values()].map(async (e) => {
+      if (e.proxy) {
+        const f = await fetchUpstreamProps(e.proxy, signal);
+        if (f) feats.set(e.model ?? "", f);
+      }
     }),
   );
-  const featMap = new Map(featResults.map((r) => [r.id, r]));
+
+  return body.data.map((m) => {
+    const entry = running.get(m.id);
+    const f = feats.get(m.id);
+    const ctx = f?.n_ctx ?? parseCmdContext(entry?.cmd) ?? extractContextK(m);
+    const hasVision = f?.modalities?.vision ?? looksVision(m);
+    const supportsReasoning = f?.supportsReasoning ?? descReasoning(m);
+    // If the model's llama-swap config sets n_predict, honor it (clamped to the
+    // context window). Otherwise leave the output limit "unbounded" by requesting
+    // the full context window, so the model decides its own reasoning + answer
+    // length instead of being truncated by an artificial cap.
+    const maxTokens = f?.n_predict && f.n_predict > 0 ? Math.min(f.n_predict, ctx) : ctx;
+    return {
+      id: m.id,
+      name: `${hasVision ? "📷 " : ""}${m.name ?? m.id} (${Math.round(ctx / 1000)}K ctx${
+        supportsReasoning ? " 🤔" : ""
+      }) ${entry ? "●" : "○"}`,
+      reasoning: supportsReasoning,
+      input: hasVision ? ["text", "image"] : ["text"],
+      cost: { input: 0, output: 0, cacheRead: 0, cacheWrite: 0 },
+      contextWindow: ctx,
+      maxTokens,
+    };
+  });
+}
+
+export default async function (pi: ExtensionAPI) {
+  // Register with an initial discovery (awaited, so startup and
+  // `pi --list-models` see models right away) plus refreshModels: pi calls
+  // it whenever the model catalog is refreshed (interactive startup and
+  // every time the model selector is opened), so models selected in
+  // llama-swap afterwards show up live with the exact context size of the
+  // running server.
+  let initial = [];
+  try {
+    initial = await buildModels();
+  } catch (err) {
+    // llama-swap is down — don't crash pi's startup; the provider stays
+    // empty and refreshModels fills it once llama-swap is reachable.
+    console.error(
+      `[llama-swap] could not reach ${BASE} (${(err as Error)?.message ?? err}); ` +
+        `provider registered without models until llama-swap is reachable.`,
+    );
+  }
 
   pi.registerProvider(PROVIDER_ID, {
     baseUrl: API_BASE,
@@ -146,36 +231,7 @@ export default async function (pi: ExtensionAPI) {
       maxTokensField: "max_tokens",
       supportsStore: false,
     },
-    models: body.data.map((m) => {
-      const feat = featMap.get(m.id);
-      const ctx = feat?.ctx ?? 128000;
-      const isLoaded = running.has(m.id);
-      const hasVision = (feat?.hasVision ?? false) || looksVision(m);
-      const supportsReasoning = feat?.supportsReasoning ?? false;
-      const nPredict = feat?.nPredict;
-      // If the model's llama-swap config sets n_predict, honor it (clamped to the
-      // context window). Otherwise leave the output limit "unbounded" by requesting
-      // the full context window, so the model decides its own reasoning + answer
-      // length instead of being truncated by an artificial cap.
-      const maxTokens = nPredict && nPredict > 0 ? Math.min(nPredict, ctx) : ctx;
-      const input: ("text" | "image")[] = hasVision ? ["text", "image"] : ["text"];
-      const reasonLabel = supportsReasoning ? " 🤔" : "";
-      return {
-        id: m.id,
-        name: `${hasVision ? "📷 " : ""}${m.name ?? m.id} (${Math.round(ctx / 1024)}K ctx${reasonLabel}) ${isLoaded ? "●" : "○"}`,
-        reasoning: supportsReasoning,
-        input,
-        cost: { input: 0, output: 0, cacheRead: 0, cacheWrite: 0 },
-        contextWindow: ctx,
-        maxTokens,
-      };
-    }),
+    models: initial,
+    refreshModels: async ({ signal }) => buildModels(signal),
   });
-  } catch (err) {
-    // llama-swap is down — don't crash pi's startup, just skip provider registration.
-    console.error(
-      `[llama-swap] could not reach ${BASE} (${(err as Error)?.message ?? err}); ` +
-        `skipping provider registration. Start llama-swap or use "pi -ne" to run without extensions.`,
-    );
-  }
 }
