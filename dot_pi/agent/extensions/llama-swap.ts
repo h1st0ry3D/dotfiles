@@ -153,7 +153,11 @@ export default async function (pi: ExtensionAPI) {
       const hasVision = (feat?.hasVision ?? false) || looksVision(m);
       const supportsReasoning = feat?.supportsReasoning ?? false;
       const nPredict = feat?.nPredict;
-      const maxTokens = nPredict && nPredict > 0 ? Math.min(nPredict, 32768) : Math.min(ctx, 32768);
+      // If the model's llama-swap config sets n_predict, honor it (clamped to the
+      // context window). Otherwise leave the output limit "unbounded" by requesting
+      // the full context window, so the model decides its own reasoning + answer
+      // length instead of being truncated by an artificial cap.
+      const maxTokens = nPredict && nPredict > 0 ? Math.min(nPredict, ctx) : ctx;
       const input: ("text" | "image")[] = hasVision ? ["text", "image"] : ["text"];
       const reasonLabel = supportsReasoning ? " 🤔" : "";
       return {
