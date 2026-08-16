@@ -1,9 +1,8 @@
 # hunk diff config
 git:
-  pagers:
+  diffRenderers:
     - colorArg: always
-      pager: hunk pager
-
+      command: hunk pager
 # Key bindings
 customCommands:
   - key: 'x'
@@ -37,7 +36,6 @@ customCommands:
         initialValue: ''
     command: "git checkout -b {{.Form.BranchType}}/$(echo '{{.Form.BranchName}}' | tr ' ' '-')"
     loadingText: 'Creating branch'
-    
 # Vesper theme
 gui:
   theme:
@@ -64,10 +62,9 @@ gui:
     '*': '#65737E'
 keybinding:
   universal:
-    prevScreenMode: '#'   
+    prevScreenMode: '#'
     nextTab: 'ä'
     prevTab: 'ö'
-
 # VS Code extension
 os:
   editPreset: "vscode"
