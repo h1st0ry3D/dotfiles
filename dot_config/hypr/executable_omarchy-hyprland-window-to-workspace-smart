@@ -1,0 +1,20 @@
+#!/bin/bash
+
+# omarchy:summary=Move the focused window to the next/previous workspace, clamped to 1..OMARCHY_WORKSPACE_MAX (default 4), so it never creates a 5th workspace
+
+set -uo pipefail
+
+MAX="${OMARCHY_WORKSPACE_MAX:-4}"
+
+cur=$(hyprctl activeworkspace -j 2>/dev/null | jq -r '.name // "1"')
+cur="${cur//[^0-9]/}"
+cur="${cur:-1}"
+
+case "${1:-next}" in
+  prev) [ "$cur" -gt 1 ] && tgt=$(( cur - 1 )) || tgt="$cur" ;;
+  *)    [ "$cur" -lt "$MAX" ] && tgt=$(( cur + 1 )) || tgt="$cur" ;;
+esac
+
+if [ "$tgt" != "$cur" ]; then
+  hyprctl dispatch "hl.dsp.window.move({ workspace = \"$tgt\", follow = false })" >/dev/null 2>&1 || true
+fi

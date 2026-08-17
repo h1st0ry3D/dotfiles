@@ -73,6 +73,10 @@ hl.gesture({ fingers = 3, direction = "up",   action = function() hl.dispatch(hl
 hl.gesture({ fingers = 3, direction = "down", action = function() hl.dispatch(hl.dsp.window.fullscreen_state({ internal = 0, client = 0 })) end })
 
 -- 4-finger swipe left/right -> next/previous workspace (natural: left -> next).
--- Wraps within 1..OMARCHY_WORKSPACE_MAX (default 4) so a 5th workspace is never created.
+-- Clamped to 1..OMARCHY_WORKSPACE_MAX (default 4) so a 5th workspace is never created.
 hl.gesture({ fingers = 4, direction = "left",  action = function() hl.dispatch(hl.dsp.exec_cmd("$HOME/.config/hypr/omarchy-hyprland-workspace-smart next")) end })
 hl.gesture({ fingers = 4, direction = "right", action = function() hl.dispatch(hl.dsp.exec_cmd("$HOME/.config/hypr/omarchy-hyprland-workspace-smart prev")) end })
+
+-- 4-finger swipe up/down -> move focused window to next/previous workspace (clamped 1..4).
+hl.gesture({ fingers = 4, direction = "up",   action = function() hl.dispatch(hl.dsp.exec_cmd("$HOME/.config/hypr/omarchy-hyprland-window-to-workspace-smart next")) end })
+hl.gesture({ fingers = 4, direction = "down", action = function() hl.dispatch(hl.dsp.exec_cmd("$HOME/.config/hypr/omarchy-hyprland-window-to-workspace-smart prev")) end })
