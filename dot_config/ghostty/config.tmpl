@@ -1,0 +1,64 @@
+{{ if eq .chezmoi.os "linux" }}
+# Dynamic theme colors (omarchy)
+config-file = ?"~/.local/state/omarchy/current/theme/ghostty.conf"
+{{ end }}
+
+# Font
+font-family = "JetBrainsMono Nerd Font"
+font-style = Regular
+font-size = 12
+
+# Window
+window-theme = ghostty
+window-padding-x = 14
+window-padding-y = 14
+confirm-close-surface = false
+resize-overlay = never
+gtk-toolbar-style = flat
+
+# Terminal style
+background = black
+
+# Cursor configuration
+cursor-style = bar
+cursor-style-blink = true
+
+# Copy on select
+copy-on-select = clipboard
+
+# Improve ssh integration
+shell-integration-features = ssh-terminfo,ssh-env
+
+# Keyboard bindings
+keybind = shift+insert=paste_from_clipboard
+keybind = control+insert=copy_to_clipboard
+# Send Shift+Enter as CSI-u so TUIs can distinguish it from Enter.
+keybind = shift+enter=csi:13;2u
+# Legacy encoding sends Alt+Shift+Enter the same as Alt+Enter; send CSI-u so tmux can match M-S-Enter.
+keybind = alt+shift+enter=csi:13;4u
+{{ if eq .chezmoi.os "linux" }}
+# Linux-specific bindings
+keybind = ctrl+n=new_window
+keybind = ctrl+shift+c=copy_to_clipboard
+keybind = ctrl+v=paste_from_clipboard
+keybind = alt+l=text:@
+keybind = alt+n=text:~
+keybind = cmd+c=text:\x03
+keybind = ctrl+d=new_split:right
+keybind = ctrl+shift+d=new_split:down
+keybind = ctrl+t=new_tab
+keybind = ctrl+w=close_surface
+# Split resize (omarchy)
+keybind = super+control+shift+alt+arrow_down=resize_split:down,100
+keybind = super+control+shift+alt+arrow_up=resize_split:up,100
+keybind = super+control+shift+alt+arrow_left=resize_split:left,100
+keybind = super+control+shift+alt+arrow_right=resize_split:right,100
+# Slowdown mouse scrolling
+mouse-scroll-multiplier = 0.95
+# Fix general slowness on hyprland (https://github.com/ghostty-org/ghostty/discussions/3224)
+async-backend = epoll
+{{ end }}
+{{ if eq .chezmoi.os "darwin" }}
+# macOS-specific bindings
+keybind = cmd+a=text:\x01
+{{ end }}
