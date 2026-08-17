@@ -35,5 +35,12 @@ o.bind("SUPER + Y", "Clipboard manager", "omarchy-shell shell toggle omarchy.cli
 -- Additional close-window binding (SUPER+W is the default).
 o.bind("SUPER + Q", "Close window", hl.dsp.window.close())
 
+-- Smart directional focus: move left/right if a neighbor exists, otherwise
+-- cycle next/previous window (so it keeps working when a window is maximized).
+hl.unbind("SUPER + LEFT")
+hl.unbind("SUPER + RIGHT")
+o.bind("SUPER + LEFT",  "Focus previous window (smart)", "$HOME/.config/hypr/omarchy-hyprland-focus-smart left")
+o.bind("SUPER + RIGHT", "Focus next window (smart)", "$HOME/.config/hypr/omarchy-hyprland-focus-smart right")
+
 -- Additional Omarchy menu binding (SUPER+SPACE is the default).
 o.bind("ALT + SPACE", "Omarchy menu", "omarchy-menu toggle")

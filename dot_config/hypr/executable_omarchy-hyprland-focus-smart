@@ -1,0 +1,26 @@
+#!/bin/bash
+
+# omarchy:summary=Smart directional focus: if the focused window is maximized/fullscreen and has no spatial neighbor in the requested direction, restore it to its tiled spot first, then move focus (so SUPER+LEFT/RIGHT always reaches the window beside it instead of an MRU cycle)
+
+set -uo pipefail
+
+case "${1:-right}" in
+  left|l)  dir=l ;;
+  right|r) dir=r ;;
+  *)       dir=r ;;
+esac
+
+json=$(hyprctl activewindow -j 2>/dev/null)
+addr_before=$(jq -r '.address // empty' <<<"$json")
+fs=$(jq -r '((.fullscreen // 0) + (.fullscreenClient // 0)) | tostring' <<<"$json")
+
+hyprctl dispatch "hl.dsp.focus({ direction = \"$dir\" })" >/dev/null 2>&1 || true
+
+addr_after=$(hyprctl activewindow -j 2>/dev/null | jq -r '.address // empty')
+
+if [[ "$addr_before" == "$addr_after" && "$fs" != "0" ]]; then
+  # Focused window was fullscreen/maximized with no spatial neighbor that way.
+  # Restore it to its tiled position, then move in the requested direction.
+  hyprctl dispatch 'hl.dsp.window.fullscreen_state({ internal = 0, client = 0 })' >/dev/null 2>&1 || true
+  hyprctl dispatch "hl.dsp.focus({ direction = \"$dir\" })" >/dev/null 2>&1 || true
+fi
