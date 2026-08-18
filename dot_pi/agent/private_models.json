@@ -1,34 +1,5 @@
 {
-  "_comment" : "oMLX + llama.cpp models are auto-discovered by extensions\/local-discover.ts. Add more local OpenAI-compatible servers in extensions\/local-discover.json.",
   "providers" : {
-    "lmstudio" : {
-      "api" : "openai-completions",
-      "apiKey" : "dummy",
-      "baseUrl" : "http:\/\/127.0.0.1:8080\/v1",
-      "compat" : {
-        "maxTokensField" : "max_tokens",
-        "supportsDeveloperRole" : false,
-        "supportsReasoningEffort" : false
-      },
-      "models" : [
-        {
-          "contextWindow" : 131072,
-          "cost" : {
-            "cacheRead" : 0,
-            "cacheWrite" : 0,
-            "input" : 0,
-            "output" : 0
-          },
-          "id" : "local-model",
-          "input" : [
-            "text"
-          ],
-          "maxTokens" : 8192,
-          "name" : "LM Studio (local)",
-          "reasoning" : false
-        }
-      ]
-    },
     "mtplx" : {
       "api" : "openai-completions",
       "apiKey" : "mtplx-local",
@@ -44,7 +15,7 @@
       },
       "models" : [
         {
-          "contextWindow" : 131072,
+          "contextWindow" : 262144,
           "cost" : {
             "cacheRead" : 0,
             "cacheWrite" : 0,
@@ -57,54 +28,10 @@
           ],
           "name" : "MTPLX mtplx-qwen38-27b-optimized-speed-fp16",
           "reasoning" : true,
-          "contextWindow" : 262144,
           "maxTokens" : 65536,
           "samplingParams" : {
             "reasoning_effort" : "low"
           }
-        }
-      ]
-    },
-    "nativ" : {
-      "api" : "openai-completions",
-      "apiKey" : "nativ",
-      "baseUrl" : "http:\/\/127.0.0.1:8080\/v1",
-      "compat" : {
-        "supportsDeveloperRole" : false,
-        "supportsReasoningEffort" : false,
-        "supportsUsageInStreaming" : true
-      },
-      "models" : [
-        {
-          "contextWindow" : 128000,
-          "cost" : {
-            "cacheRead" : 0,
-            "cacheWrite" : 0,
-            "input" : 0,
-            "output" : 0
-          },
-          "id" : "LiquidAI\/LFM2.5-1.2B-Instruct-MLX-bf16",
-          "input" : [
-            "text"
-          ],
-          "name" : "LFM2.5-1.2B-Instruct-MLX-bf16",
-          "reasoning" : true
-        },
-        {
-          "contextWindow" : 262144,
-          "cost" : {
-            "cacheRead" : 0,
-            "cacheWrite" : 0,
-            "input" : 0,
-            "output" : 0
-          },
-          "id" : "mlx-community\/Qwen3.6-27B-4bit",
-          "input" : [
-            "text",
-            "image"
-          ],
-          "name" : "Qwen3.6-27B-4bit",
-          "reasoning" : true
         }
       ]
     }
