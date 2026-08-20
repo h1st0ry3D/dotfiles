@@ -1,8 +1,18 @@
 import type { ExtensionAPI } from "@earendil-works/pi-coding-agent";
 
-const BASE = "http://192.168.0.99:8080";
-const API_BASE = `${BASE}/v1`;
-const PROVIDER_ID = "llama-swap";
+/**
+ * Multiple llama-swap instances. Each gets its own provider so requests
+ * route to the right PC (a provider has a single baseUrl). Models from
+ * every endpoint are merged into one picker.
+ *
+ * host: short tag shown in the model name so you can tell the PCs apart.
+ * providerId: unique; the first keeps "llama-swap" for backward compat
+ * with an already-selected model.
+ */
+const ENDPOINTS = [
+  { host: "99", base: "http://192.168.0.99:8080", providerId: "llama-swap" },
+  { host: "61", base: "http://192.168.0.61:8080", providerId: "llama-swap-61" },
+] as const;
 
 /**
  * Vision capability is determined by the yaml config (--mmproj presence),
@@ -55,9 +65,9 @@ interface RunningEntry {
 }
 
 /** Fetch /running: which models are loaded, plus the launch cmd + upstream proxy URL. */
-async function fetchRunning(signal?: AbortSignal): Promise<Map<string, RunningEntry>> {
+async function fetchRunning(base: string, signal?: AbortSignal): Promise<Map<string, RunningEntry>> {
   try {
-    const res = await fetch(`${BASE}/running`, { signal: signal ?? AbortSignal.timeout(3000) });
+    const res = await fetch(`${base}/running`, { signal: signal ?? AbortSignal.timeout(3000) });
     if (!res.ok) return new Map();
     const body = await res.json() as { running?: RunningEntry[] };
     const map = new Map<string, RunningEntry>();
@@ -145,14 +155,7 @@ function extractContextK(m: LlamaSwapModel): number {
   return 128000;
 }
 
-/**
- * Discover models + per-model context/vision/reasoning from llama-swap.
- *
- * Context resolution per model:
- *   loaded:  upstream llama-server n_ctx  ->  launch cmd -c  ->  name/desc heuristic
- *   unloaded:  name/desc heuristic
- */
-async function buildModels(signal?: AbortSignal): Promise<{
+type BuiltModel = {
   id: string;
   name: string;
   reasoning: boolean;
@@ -160,10 +163,21 @@ async function buildModels(signal?: AbortSignal): Promise<{
   cost: { input: number; output: number; cacheRead: number; cacheWrite: number };
   contextWindow: number;
   maxTokens: number;
-}[]> {
+};
+
+/**
+ * Discover models + per-model context/vision/reasoning from one llama-swap
+ * instance.
+ *
+ * Context resolution per model:
+ *   loaded:  upstream llama-server n_ctx  ->  launch cmd -c  ->  name/desc heuristic
+ *   unloaded:  name/desc heuristic
+ */
+async function buildModelsFor(base: string, hostLabel: string, signal?: AbortSignal): Promise<BuiltModel[]> {
+  const apiBase = `${base}/v1`;
   const [modelsRes, running] = await Promise.all([
-    fetch(`${API_BASE}/models`, { signal: signal ?? AbortSignal.timeout(5000) }),
-    fetchRunning(signal),
+    fetch(`${apiBase}/models`, { signal: signal ?? AbortSignal.timeout(5000) }),
+    fetchRunning(base, signal),
   ]);
   const body = await modelsRes.json() as { data: LlamaSwapModel[] };
 
@@ -192,7 +206,7 @@ async function buildModels(signal?: AbortSignal): Promise<{
       id: m.id,
       name: `${hasVision ? "📷 " : ""}${m.name ?? m.id} (${Math.round(ctx / 1000)}K ctx${
         supportsReasoning ? " 🤔" : ""
-      }) ${entry ? "●" : "○"}`,
+      }) ${entry ? "●" : "○"} @${hostLabel}`,
       reasoning: supportsReasoning,
       input: hasVision ? ["text", "image"] : ["text"],
       cost: { input: 0, output: 0, cacheRead: 0, cacheWrite: 0 },
@@ -203,35 +217,34 @@ async function buildModels(signal?: AbortSignal): Promise<{
 }
 
 export default async function (pi: ExtensionAPI) {
-  // Register with an initial discovery (awaited, so startup and
-  // `pi --list-models` see models right away) plus refreshModels: pi calls
-  // it whenever the model catalog is refreshed (interactive startup and
-  // every time the model selector is opened), so models selected in
-  // llama-swap afterwards show up live with the exact context size of the
-  // running server.
-  let initial = [];
-  try {
-    initial = await buildModels();
-  } catch (err) {
-    // llama-swap is down — don't crash pi's startup; the provider stays
-    // empty and refreshModels fills it once llama-swap is reachable.
-    console.error(
-      `[llama-swap] could not reach ${BASE} (${(err as Error)?.message ?? err}); ` +
-        `provider registered without models until llama-swap is reachable.`,
-    );
-  }
+  await Promise.all(
+    ENDPOINTS.map(async ({ host, base, providerId }) => {
+      // Initial discovery (awaited) so startup and `pi --list-models` see
+      // models right away. If this endpoint is down, register empty and let
+      // refreshModels fill it later — don't crash pi or block other endpoints.
+      let initial: BuiltModel[] = [];
+      try {
+        initial = await buildModelsFor(base, host);
+      } catch (err) {
+        console.error(
+          `[llama-swap] could not reach ${base} (${(err as Error)?.message ?? err}); ` +
+            `provider "${providerId}" registered without models until reachable.`,
+        );
+      }
 
-  pi.registerProvider(PROVIDER_ID, {
-    baseUrl: API_BASE,
-    apiKey: "dummy",
-    api: "openai-completions",
-    compat: {
-      supportsDeveloperRole: false,
-      supportsReasoningEffort: false,
-      maxTokensField: "max_tokens",
-      supportsStore: false,
-    },
-    models: initial,
-    refreshModels: async ({ signal }) => buildModels(signal),
-  });
+      pi.registerProvider(providerId, {
+        baseUrl: `${base}/v1`,
+        apiKey: "dummy",
+        api: "openai-completions",
+        compat: {
+          supportsDeveloperRole: false,
+          supportsReasoningEffort: false,
+          maxTokensField: "max_tokens",
+          supportsStore: false,
+        },
+        models: initial,
+        refreshModels: async ({ signal }) => buildModelsFor(base, host, signal),
+      });
+    }),
+  );
 }

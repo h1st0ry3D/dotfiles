@@ -15,23 +15,20 @@
       },
       "models" : [
         {
-          "contextWindow" : 262144,
+          "contextWindow" : 131072,
           "cost" : {
             "cacheRead" : 0,
             "cacheWrite" : 0,
             "input" : 0,
             "output" : 0
           },
-          "id" : "mtplx-qwen38-27b-optimized-speed-fp16",
+          "id" : "mtplx-qwen36-35b-a3b-optimized-speed",
           "input" : [
-            "text"
+            "text",
+            "image"
           ],
-          "name" : "MTPLX mtplx-qwen38-27b-optimized-speed-fp16",
-          "reasoning" : true,
-          "maxTokens" : 65536,
-          "samplingParams" : {
-            "reasoning_effort" : "low"
-          }
+          "name" : "MTPLX mtplx-qwen36-35b-a3b-optimized-speed",
+          "reasoning" : true
         }
       ]
     }
