@@ -175,11 +175,23 @@ type BuiltModel = {
  */
 async function buildModelsFor(base: string, hostLabel: string, signal?: AbortSignal): Promise<BuiltModel[]> {
   const apiBase = `${base}/v1`;
-  const [modelsRes, running] = await Promise.all([
-    fetch(`${apiBase}/models`, { signal: signal ?? AbortSignal.timeout(5000) }),
-    fetchRunning(base, signal),
-  ]);
-  const body = await modelsRes.json() as { data: LlamaSwapModel[] };
+  let modelsRes: Response;
+  try {
+    modelsRes = await fetch(`${apiBase}/models`, { signal: signal ?? AbortSignal.timeout(3000) });
+  } catch {
+    // Server offline / unreachable: nothing to register. Caller skips the
+    // model load and launches pi without blocking.
+    return [];
+  }
+  if (!modelsRes.ok) return [];
+  const [running] = await Promise.all([fetchRunning(base, signal)]);
+  let body: { data: LlamaSwapModel[] };
+  try {
+    body = await modelsRes.json() as { data: LlamaSwapModel[] };
+  } catch {
+    return [];
+  }
+  if (!body?.data) return [];
 
   const feats = new Map<string, ModelFeatures>();
   await Promise.all(
@@ -216,19 +228,36 @@ async function buildModelsFor(base: string, hostLabel: string, signal?: AbortSig
   });
 }
 
+/** Hard cap so an unresponsive/offline server can never block pi launch. */
+async function buildModelsOrEmpty(
+  base: string,
+  host: string,
+  signal?: AbortSignal,
+): Promise<{ models: BuiltModel[]; reachable: boolean }> {
+  try {
+    let timer: ReturnType<typeof setTimeout> | undefined;
+    const timedOut = new Promise<BuiltModel[]>((_, reject) => {
+      timer = setTimeout(() => reject(new Error("discovery timed out")), 4000);
+    });
+    const models = await Promise.race([buildModelsFor(base, host, signal), timedOut]);
+    if (timer) clearTimeout(timer);
+    return { models, reachable: true };
+  } catch (err) {
+    return { models: [], reachable: false };
+  }
+}
+
 export default async function (pi: ExtensionAPI) {
   await Promise.all(
     ENDPOINTS.map(async ({ host, base, providerId }) => {
       // Initial discovery (awaited) so startup and `pi --list-models` see
-      // models right away. If this endpoint is down, register empty and let
-      // refreshModels fill it later — don't crash pi or block other endpoints.
-      let initial: BuiltModel[] = [];
-      try {
-        initial = await buildModelsFor(base, host);
-      } catch (err) {
+      // models right away. If this endpoint is down/offline, skip the model
+      // load and still launch pi; refreshModels fills it later when reachable.
+      const { models, reachable } = await buildModelsOrEmpty(base, host);
+      if (!reachable) {
         console.error(
-          `[llama-swap] could not reach ${base} (${(err as Error)?.message ?? err}); ` +
-            `provider "${providerId}" registered without models until reachable.`,
+          `[llama-swap] could not reach ${base}; provider "${providerId}" ` +
+            `registered without models until reachable.`,
         );
       }
 
@@ -242,7 +271,7 @@ export default async function (pi: ExtensionAPI) {
           maxTokensField: "max_tokens",
           supportsStore: false,
         },
-        models: initial,
+        models,
         refreshModels: async ({ signal }) => buildModelsFor(base, host, signal),
       });
     }),
