@@ -65,11 +65,13 @@ bindsym XF86MonBrightnessUp   exec --no-startup-id brightnessctl set +20%
 # Control, so these bind to the Control modifier. xdotool translates to the keys
 # apps expect (Ctrl+Insert copy, Shift+Insert paste, Ctrl+w close tab, @).
 # --release + --clearmodifiers so the modifier press isn't passed to the app.
-bindsym --release Control+c exec --no-startup-id xdotool key --clearmodifiers Ctrl+Insert
-bindsym --release Control+x exec --no-startup-id xdotool key --clearmodifiers Shift+Delete
-bindsym --release Control+v exec --no-startup-id xdotool key --clearmodifiers Shift+Insert
+# Wrapped in xdotool-safe.sh: force-releases all modifiers if xdotool fails,
+# so no sticky-mod state is possible.
+bindsym --release Control+c exec --no-startup-id ~/.config/i3/xdotool-safe.sh Ctrl+Insert
+bindsym --release Control+x exec --no-startup-id ~/.config/i3/xdotool-safe.sh Shift+Delete
+bindsym --release Control+v exec --no-startup-id ~/.config/i3/xdotool-safe.sh Shift+Insert
 bindsym Control+q kill
-bindsym --release $mod+l exec --no-startup-id xdotool key --clearmodifiers at   # Alt+L types @
+bindsym --release $mod+l exec --no-startup-id ~/.config/i3/xdotool-safe.sh at   # Alt+L types @
 bindsym Control+Shift+Escape exec --no-startup-id ~/.config/i3/powermenu.sh
 
 # Use Mouse+$mod to drag floating windows to their wanted position
