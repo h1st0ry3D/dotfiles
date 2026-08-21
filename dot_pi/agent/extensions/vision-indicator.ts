@@ -1,6 +1,6 @@
 import type { ExtensionAPI } from "@earendil-works/pi-coding-agent";
 
-const KEY = "vision";
+const KEY = "1-vision";
 const LS_BASE = "http://192.168.0.99:8080";
 
 // Session generation counter. Bumped on start/shutdown; async work checks it
@@ -80,7 +80,12 @@ async function checkProps(modelId: string | undefined): Promise<boolean> {
 function setIndicatorSafe(ctx: any, hasVision: boolean) {
   try {
     if (hasVision) {
-      ctx.ui.setStatus(KEY, ctx.ui.theme.fg("accent", "👁"));
+      // Trailing "space" must be U+2800 (braille blank): pi's footer sanitizer
+      // collapses/strips normal spaces (replace(/ +/g," ") + trim), so a real
+      // trailing space would vanish. U+2800 renders blank but survives.
+      // U+FE0F forces full-size emoji presentation for the eye (some fonts
+      // render it small/text-style when followed by a non-space char).
+      ctx.ui.setStatus(KEY, ctx.ui.theme.fg("accent", "👁\uFE0F\u2800"));
     } else {
       ctx.ui.setStatus(KEY, undefined);
     }

@@ -29,9 +29,9 @@ export default async function cwdEditPermissions(pi: ExtensionAPI) {
   pi.on("session_start", (_event, ctx) => {
     if (!config.cwdEdit?.cwd) cwd = resolve(ctx.cwd);
     if (enabled) {
-      ctx.ui.setStatus("cwd-edits", `📁`);
+      ctx.ui.setStatus("0-cwd-edits", `📁`);
     } else {
-      ctx.ui.setStatus("cwd-edits", undefined);
+      ctx.ui.setStatus("0-cwd-edits", undefined);
     }
   });
 
@@ -52,11 +52,11 @@ export default async function cwdEditPermissions(pi: ExtensionAPI) {
 
       // Update status immediately
       if (enabled) {
-        ctx.ui.setStatus("cwd-edits", `📁`);
+        ctx.ui.setStatus("0-cwd-edits", `📁`);
       } else {
-        ctx.ui.setStatus("cwd-edits", undefined);
+        ctx.ui.setStatus("0-cwd-edits", undefined);
       }
-      
+
       ctx.ui.notify(enabled ? "CWD edit permissions enabled" : "CWD edit permissions disabled", "info");
     },
   });
