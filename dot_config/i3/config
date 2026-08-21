@@ -95,7 +95,9 @@ exec --no-startup-id clipmenud
 bindsym Control+y exec --no-startup-id clipmenu
 
 # start dmenu (a program launcher)
-bindsym $mod+d focus mode_toggle
+# DISABLED: focus mode_toggle persists and silently changes what $mod+arrows
+# focus (tiling vs floating) — felt like "all keys changed afterwards".
+#bindsym $mod+d focus mode_toggle
 # A more modern dmenu replacement is rofi:
 # bindcode $mod+40 exec "rofi -modi drun,run -show drun"
 # There also is i3-dmenu-desktop which only displays applications shipping a
@@ -108,11 +110,22 @@ bindsym $mod+k focus down
 bindsym $mod+odiaeresis focus right
 
 # alternatively, you can use the cursor keys:
-bindsym $mod+Left focus left
-bindsym $mod+Down focus down
-bindsym $mod+Up focus up
+bindsym Ctrl+Left focus left
+bindsym Ctrl+Down focus down
+bindsym Ctrl+Up focus up
 #bindsym $mod+l focus up
-bindsym $mod+Right focus right
+bindsym Ctrl+Right focus right
+
+# Word jump: Alt+arrows injects Ctrl+arrows into the focused app.
+# Verified on this setup: XTEST injection bypasses i3 grabs, so this works
+# even though Ctrl+arrows is bound above. Physical: Cmd+arrows = focus,
+# Alt(Option)+arrows = word jump, Mac-style.
+
+# Word jump: Ctrl+Left/Right deliberately NOT bound here. Apps get them
+# natively (= word jump). After the Cmd<->Ctrl swap, physical Cmd+arrows
+# sends Ctrl+arrows -> Mac-like word jump. Don't add i3 binds on Ctrl+arrows;
+# they'd shadow the app shortcut (xdotool re-injection can't bypass the grab).
+
 
 # move focused window
 bindsym $mod+Shift+j move left
@@ -225,7 +238,9 @@ mode "resize" {
         bindsym $mod+r mode "default"
 }
 
-bindsym $mod+r mode "resize"
+# DISABLED: resize mode is sticky — once entered, j/k/l/arrows resize and
+# normal binds stop working until Escape. Felt like tmux-prefix lock-in.
+#bindsym $mod+r mode "resize"
 
 # Start i3bar to display a workspace bar (plus the system information i3status
 # finds out, if available)
