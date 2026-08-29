@@ -62,21 +62,6 @@ hl.config({
 -- See https://wiki.hypr.land/Configuring/Advanced-and-Cool/Gestures/
 -- hl.gesture({ fingers = 3, direction = "horizontal", action = "workspace" })
 
--- Enable touchpad gestures for moving focus (natural/inverted: swipe left -> window on the right).
--- Uses the smart-focus script so it also works from a maximized/full-width window
--- (restores the window to its tiled spot, then steps to the spatial neighbor).
-hl.gesture({ fingers = 3, direction = "left",  action = function() hl.dispatch(hl.dsp.exec_cmd("$HOME/.config/hypr/omarchy-hyprland-focus-smart right")) end })
-hl.gesture({ fingers = 3, direction = "right", action = function() hl.dispatch(hl.dsp.exec_cmd("$HOME/.config/hypr/omarchy-hyprland-focus-smart left")) end })
-
--- 3-finger swipe up -> full width (maximize); swipe down -> back to half size.
-hl.gesture({ fingers = 3, direction = "up",   action = function() hl.dispatch(hl.dsp.window.fullscreen({ mode = "maximized" })) end })
-hl.gesture({ fingers = 3, direction = "down", action = function() hl.dispatch(hl.dsp.window.fullscreen_state({ internal = 0, client = 0 })) end })
-
--- 4-finger swipe left/right -> next/previous workspace (natural: left -> next).
--- Clamped to 1..OMARCHY_WORKSPACE_MAX (default 4) so a 5th workspace is never created.
-hl.gesture({ fingers = 4, direction = "left",  action = function() hl.dispatch(hl.dsp.exec_cmd("$HOME/.config/hypr/omarchy-hyprland-workspace-smart next")) end })
-hl.gesture({ fingers = 4, direction = "right", action = function() hl.dispatch(hl.dsp.exec_cmd("$HOME/.config/hypr/omarchy-hyprland-workspace-smart prev")) end })
-
--- 4-finger swipe up/down -> move focused window to next/previous workspace (clamped 1..4).
-hl.gesture({ fingers = 4, direction = "up",   action = function() hl.dispatch(hl.dsp.exec_cmd("$HOME/.config/hypr/omarchy-hyprland-window-to-workspace-smart next")) end })
-hl.gesture({ fingers = 4, direction = "down", action = function() hl.dispatch(hl.dsp.exec_cmd("$HOME/.config/hypr/omarchy-hyprland-window-to-workspace-smart prev")) end })
+-- Enable touchpad gestures for moving focus (helpful on scrolling layout).
+-- hl.gesture({ fingers = 3, direction = "left", action = function() hl.dispatch(hl.dsp.focus({ direction = "l" })) end })
+-- hl.gesture({ fingers = 3, direction = "right", action = function() hl.dispatch(hl.dsp.focus({ direction = "r" })) end })
