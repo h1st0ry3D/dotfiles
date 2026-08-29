@@ -1,0 +1,8 @@
+[tools]
+chezmoi = "latest"
+gh = "latest"
+hunk = "latest"
+just = "latest"
+node = "26.7.0"
+opencode = "latest"
+pi = "latest"
