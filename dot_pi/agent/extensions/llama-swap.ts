@@ -21,6 +21,10 @@ const ENDPOINTS = [
  * models register as multimodal even when not loaded at pi startup.
  */
 function looksVision(m: LlamaSwapModel): boolean {
+  // Authoritative signals from llama-swap v251 /v1/models
+  if (m.architecture?.input_modalities?.includes("image")) return true;
+  if (m.capabilities?.vision) return true;
+  if (m.meta?.llamaswap?.mmproj) return true;
   const desc = (m.description ?? "").toLowerCase();
   if (/\bno\s+mmproj/.test(desc)) return false;
   if (desc.includes("vision: yes")) return true;
@@ -41,10 +45,15 @@ interface LlamaSwapModel {
   description?: string;
   context_window?: number;
   max_model_len?: number;
+  architecture?: { input_modalities?: string[] };
+  capabilities?: { vision?: boolean };
+  context_length?: number;
+  status?: { value?: string };
   meta?: {
     llamaswap?: {
       context_length?: number;
       aliases?: string[];
+      mmproj?: string;
     };
   };
 }
@@ -131,6 +140,8 @@ async function fetchUpstreamProps(proxy: string, signal?: AbortSignal): Promise<
  * the "ctx:" patterns above win because descriptions are scanned first.
  */
 function extractContextK(m: LlamaSwapModel): number {
+  // Authoritative context from llama-swap v251 (capabilities.context -> context_length)
+  if (typeof m.context_length === "number" && m.context_length > 0) return m.context_length;
   if (typeof m.context_window === "number" && m.context_window > 0) return m.context_window;
   if (typeof m.max_model_len === "number" && m.max_model_len > 0) return m.max_model_len;
   const lsCtx = m.meta?.llamaswap?.context_length;
@@ -209,11 +220,13 @@ async function buildModelsFor(base: string, hostLabel: string, signal?: AbortSig
     const ctx = f?.n_ctx ?? parseCmdContext(entry?.cmd) ?? extractContextK(m);
     const hasVision = f?.modalities?.vision ?? looksVision(m);
     const supportsReasoning = f?.supportsReasoning ?? descReasoning(m);
-    // If the model's llama-swap config sets n_predict, honor it (clamped to the
-    // context window). Otherwise leave the output limit "unbounded" by requesting
-    // the full context window, so the model decides its own reasoning + answer
-    // length instead of being truncated by an artificial cap.
-    const maxTokens = f?.n_predict && f.n_predict > 0 ? Math.min(f.n_predict, ctx) : ctx;
+    // Cap the output so input + output always fit the context window. Honor an
+    // explicit n_predict when present and sane, otherwise default to half the
+    // context; never exceed ctx - 1024 (always leaves room for the prompt).
+    // This keeps maxTokens derived per model instead of needing per-model
+    // overrides in models.json.
+    const outCap = f?.n_predict && f.n_predict > 0 ? f.n_predict : Math.floor(ctx / 2);
+    const maxTokens = Math.max(1024, Math.min(outCap, ctx - 1024));
     return {
       id: m.id,
       name: `${hasVision ? "📷 " : ""}${m.name ?? m.id} (${Math.round(ctx / 1000)}K ctx${
