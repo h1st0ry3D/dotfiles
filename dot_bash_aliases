@@ -1,0 +1,26 @@
+# cd path alias
+alias a="cd $HOME/agent"
+alias g="cd $HOME/Git"
+alias u="cd $HOME"
+alias n="cd $HOME/Notes/zettelkasten"
+alias dot="cd $HOME/.config"
+
+# tool alias
+alias c="chezmoi"
+alias d="hunk diff --watch"
+alias f="fresh"
+k() { kill-the-port "$1"; }
+alias l="lazygit"
+alias h="herdr"
+alias o="opencode -c"
+alias p="pi -c"
+alias docker="podman"
+alias pod="devcontainer"
+
+# biome alias
+alias b="biome check --write ."
+alias B="biome format --write ."
+alias bl="biome lint --write ."
+
+# list alias
+alias ls="ls -1aF --color=auto"
