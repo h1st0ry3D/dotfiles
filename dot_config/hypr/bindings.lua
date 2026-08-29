@@ -37,3 +37,12 @@ o.bind("SUPER + Q", "Close window", hl.dsp.window.close())
 
 -- Additional Omarchy menu binding (SUPER+SPACE is the default).
 o.bind("ALT + SPACE", "Omarchy menu", "omarchy-menu toggle")
+
+-- VT switch fix: Hyprland does not bind CTRL+ALT+Fx by default.
+-- Without this, CTRL+ALT+F2/F3 loses focus (dots vanish) but stays on compositor overlay.
+-- Busctl SwitchTo via logind (polkit allows), fallback to sudo chvt (sudoers).
+o.bind("CTRL + ALT + F1", "Switch to VT1 (greeter)", "sh -c 'busctl call org.freedesktop.login1 /org/freedesktop/login1/seat/seat0 org.freedesktop.login1.Seat SwitchTo u 1 || sudo chvt 1'", { locked = true })
+o.bind("CTRL + ALT + F2", "Switch to VT2 (tty2)", "sh -c 'busctl call org.freedesktop.login1 /org/freedesktop/login1/seat/seat0 org.freedesktop.login1.Seat SwitchTo u 2 || sudo chvt 2'", { locked = true })
+o.bind("CTRL + ALT + F3", "Switch to VT3 (tty3)", "sh -c 'busctl call org.freedesktop.login1 /org/freedesktop/login1/seat/seat0 org.freedesktop.login1.Seat SwitchTo u 3 || sudo chvt 3'", { locked = true })
+o.bind("CTRL + ALT + F4", "Switch to VT4 (graphical - Hyprland)", "sh -c 'busctl call org.freedesktop.login1 /org/freedesktop/login1/seat/seat0 org.freedesktop.login1.Seat SwitchTo u 4 || sudo chvt 4'", { locked = true })
+-- After enabling getty@tty2/3, user session moves from VT1 to VT4 (next free VT). F4 is now graphical.
