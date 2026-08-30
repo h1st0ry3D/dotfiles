@@ -1,5 +1,5 @@
 {
-  "context": 131072,
+  "context": 1048576,
   "maxTokens": 16384,
   "timeoutMs": 5000,
   "servers": [
@@ -18,9 +18,18 @@
       "apiKey": "dummy",
       "authHeader": false,
       "type": "openai",
-      "context": 131072,
+      "context": 1048576,
       "maxTokens": 8192,
-      "enabled": false
+      "enabled": true
+    },
+    {
+      "key": "llamacpp-61",
+      "baseUrl": "http://192.168.0.61:8080",
+      "apiKey": "dummy",
+      "authHeader": false,
+      "type": "openai",
+      "context": 1048576,
+      "enabled": true
     }
   ]
 }
