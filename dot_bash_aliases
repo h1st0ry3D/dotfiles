@@ -14,6 +14,7 @@ alias l="lazygit"
 alias h="herdr"
 alias o="opencode -c"
 alias p="pi -c"
+alias y="spf"
 alias docker="podman"
 alias pod="devcontainer"
 
