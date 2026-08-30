@@ -1,11 +1,21 @@
 {
-  "toolPrefix": "mcp",
-  "requestTimeoutMs": 60000,
-  "mcpServers": {
-    "godot-ai": {
-      "transport": "streamable-http",
-      "url": "http://127.0.0.1:8000/mcp",
-      "lifecycle": "lazy"
-    }
-  }
+	"toolPrefix": "mcp",
+	"requestTimeoutMs": 60000,
+	"mcpServers": {
+		"godot-ai": {
+			"command": "/home/arch/.local/bin/uvx",
+			"args": [
+				"--link-mode",
+				"copy",
+				"--from",
+				"godot-ai==3.2.4",
+				"godot-ai",
+				"attach",
+				"--port",
+				"8000",
+				"--ws-port",
+				"9500"
+			]
+		}
+	}
 }
