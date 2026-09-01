@@ -46,3 +46,7 @@ o.bind("CTRL + ALT + F2", "Switch to VT2 (tty2)", "sh -c 'busctl call org.freede
 o.bind("CTRL + ALT + F3", "Switch to VT3 (tty3)", "sh -c 'busctl call org.freedesktop.login1 /org/freedesktop/login1/seat/seat0 org.freedesktop.login1.Seat SwitchTo u 3 || sudo chvt 3'", { locked = true })
 o.bind("CTRL + ALT + F4", "Switch to VT4 (graphical - Hyprland)", "sh -c 'busctl call org.freedesktop.login1 /org/freedesktop/login1/seat/seat0 org.freedesktop.login1.Seat SwitchTo u 4 || sudo chvt 4'", { locked = true })
 -- After enabling getty@tty2/3, user session moves from VT1 to VT4 (next free VT). F4 is now graphical.
+
+-- Remap SUPER+SHIFT+ENTER from Browser -> Terminal
+hl.unbind("SUPER + SHIFT + RETURN")
+o.bind("SUPER + SHIFT + RETURN", "Terminal", { omarchy = "terminal" })
