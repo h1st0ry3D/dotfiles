@@ -8,8 +8,9 @@ auto_switch = false
 {{- if eq .chezmoi.os "darwin" }}
 prefix = "cmd+e"
 {{- else }}
-prefix = "ctrl+e"
+prefix = "super+e"
 {{- end }}
+switch_workspace = "prefix+shift+1..9"
 split_vertical = "prefix+d"
 split_horizontal = "prefix+shift+d"
 new_tab = "prefix+t"
