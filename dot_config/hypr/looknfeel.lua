@@ -46,4 +46,4 @@ hl.config({
     -- Two columns x 0.5 = exactly full screen width (no side gaps at 2 windows).
     -- column_width = 0.5,
 --  },
-})
+-- })
