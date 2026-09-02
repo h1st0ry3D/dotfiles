@@ -45,6 +45,9 @@ keybind = ctrl+n=new_window
 keybind = ctrl+shift+c=copy_to_clipboard
 keybind = ctrl+v=paste_from_clipboard
 keybind = alt+l=text:@
+keybind = alt+7=unbind
+keybind = alt+digit_7=unbind
+keybind = alt+7=text:|
 keybind = alt+n=text:~
 keybind = cmd+c=text:\x03
 keybind = ctrl+d=new_split:right
@@ -56,8 +59,8 @@ keybind = super+control+shift+alt+arrow_down=resize_split:down,100
 keybind = super+control+shift+alt+arrow_up=resize_split:up,100
 keybind = super+control+shift+alt+arrow_left=resize_split:left,100
 keybind = super+control+shift+alt+arrow_right=resize_split:right,100
-# Slowdown mouse scrolling
-mouse-scroll-multiplier = 0.95
+# Speed up mouse/touchpad scrolling (was 0.95 slowdown)
+mouse-scroll-multiplier = 3.0
 # Fix general slowness on hyprland (https://github.com/ghostty-org/ghostty/discussions/3224)
 async-backend = epoll
 {{ end }}
