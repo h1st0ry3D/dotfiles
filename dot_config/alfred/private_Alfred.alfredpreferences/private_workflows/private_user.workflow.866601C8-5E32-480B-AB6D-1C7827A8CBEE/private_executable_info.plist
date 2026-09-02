@@ -10,7 +10,7 @@
 		<array>
 			<dict>
 				<key>destinationuid</key>
-				<string>018539E5-0B71-4CCF-A106-86745324E887</string>
+				<string>63B0A1B1-3B48-4BE1-86F3-F9BE0AD7CA40</string>
 				<key>modifiers</key>
 				<integer>0</integer>
 				<key>modifiersubtext</key>
@@ -33,6 +33,29 @@
 		<dict>
 			<key>config</key>
 			<dict>
+				<key>concurrently</key>
+				<false/>
+				<key>escaping</key>
+				<integer>0</integer>
+				<key>script</key>
+				<string>/Applications/Zed.app/Contents/MacOS/cli --new</string>
+				<key>scriptargtype</key>
+				<integer>0</integer>
+				<key>scriptfile</key>
+				<string></string>
+				<key>type</key>
+				<integer>0</integer>
+			</dict>
+			<key>type</key>
+			<string>alfred.workflow.action.script</string>
+			<key>uid</key>
+			<string>63B0A1B1-3B48-4BE1-86F3-F9BE0AD7CA40</string>
+			<key>version</key>
+			<integer>2</integer>
+		</dict>
+		<dict>
+			<key>config</key>
+			<dict>
 				<key>action</key>
 				<integer>0</integer>
 				<key>argument</key>
@@ -42,11 +65,11 @@
 				<key>focusedappvariablename</key>
 				<string></string>
 				<key>hotkey</key>
-				<integer>20</integer>
+				<integer>45</integer>
 				<key>hotmod</key>
-				<integer>1572864</integer>
+				<integer>1179648</integer>
 				<key>hotstring</key>
-				<string>3</string>
+				<string>N</string>
 				<key>leftcursor</key>
 				<false/>
 				<key>modsmode</key>
@@ -61,34 +84,17 @@
 			<key>version</key>
 			<integer>2</integer>
 		</dict>
-		<dict>
-			<key>config</key>
-			<dict>
-				<key>paths</key>
-				<array>
-					<string>/Applications/Zed.app</string>
-				</array>
-				<key>toggle</key>
-				<true/>
-			</dict>
-			<key>type</key>
-			<string>alfred.workflow.action.launchfiles</string>
-			<key>uid</key>
-			<string>018539E5-0B71-4CCF-A106-86745324E887</string>
-			<key>version</key>
-			<integer>1</integer>
-		</dict>
 	</array>
 	<key>readme</key>
 	<string></string>
 	<key>uidata</key>
 	<dict>
-		<key>018539E5-0B71-4CCF-A106-86745324E887</key>
+		<key>63B0A1B1-3B48-4BE1-86F3-F9BE0AD7CA40</key>
 		<dict>
 			<key>xpos</key>
-			<real>270</real>
+			<real>255</real>
 			<key>ypos</key>
-			<real>55</real>
+			<real>40</real>
 		</dict>
 		<key>B9F808F8-7137-477C-B386-55180E413664</key>
 		<dict>

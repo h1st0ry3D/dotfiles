@@ -10,7 +10,7 @@
 		<array>
 			<dict>
 				<key>destinationuid</key>
-				<string>E8ED36F8-BBA4-40CB-A5DC-8D226EFE8F92</string>
+				<string>9759B3A8-2752-4998-AD62-29CE24D4A7D7</string>
 				<key>modifiers</key>
 				<integer>0</integer>
 				<key>modifiersubtext</key>
@@ -27,7 +27,7 @@
 	<key>disabled</key>
 	<false/>
 	<key>name</key>
-	<string>Sleep</string>
+	<string>Launch Files</string>
 	<key>objects</key>
 	<array>
 		<dict>
@@ -42,11 +42,11 @@
 				<key>focusedappvariablename</key>
 				<string></string>
 				<key>hotkey</key>
-				<integer>53</integer>
+				<integer>3</integer>
 				<key>hotmod</key>
 				<integer>1179648</integer>
 				<key>hotstring</key>
-				<string>⎋</string>
+				<string>F</string>
 				<key>leftcursor</key>
 				<false/>
 				<key>modsmode</key>
@@ -64,15 +64,26 @@
 		<dict>
 			<key>config</key>
 			<dict>
-				<key>command</key>
-				<integer>5</integer>
-				<key>confirm</key>
+				<key>concurrently</key>
 				<false/>
+				<key>escaping</key>
+				<integer>0</integer>
+				<key>script</key>
+				<string>/usr/bin/osascript -e 'tell application "Finder"' \
+     -e 'activate' \
+     -e 'make new Finder window to (path to home folder)' \
+     -e 'end tell'</string>
+				<key>scriptargtype</key>
+				<integer>0</integer>
+				<key>scriptfile</key>
+				<string></string>
+				<key>type</key>
+				<integer>0</integer>
 			</dict>
 			<key>type</key>
-			<string>alfred.workflow.action.systemcommand</string>
+			<string>alfred.workflow.action.script</string>
 			<key>uid</key>
-			<string>E8ED36F8-BBA4-40CB-A5DC-8D226EFE8F92</string>
+			<string>9759B3A8-2752-4998-AD62-29CE24D4A7D7</string>
 			<key>version</key>
 			<integer>2</integer>
 		</dict>
@@ -81,19 +92,19 @@
 	<string></string>
 	<key>uidata</key>
 	<dict>
+		<key>9759B3A8-2752-4998-AD62-29CE24D4A7D7</key>
+		<dict>
+			<key>xpos</key>
+			<real>305</real>
+			<key>ypos</key>
+			<real>60</real>
+		</dict>
 		<key>B9F808F8-7137-477C-B386-55180E413664</key>
 		<dict>
 			<key>xpos</key>
 			<real>50</real>
 			<key>ypos</key>
 			<real>50</real>
-		</dict>
-		<key>E8ED36F8-BBA4-40CB-A5DC-8D226EFE8F92</key>
-		<dict>
-			<key>xpos</key>
-			<real>345</real>
-			<key>ypos</key>
-			<real>65</real>
 		</dict>
 	</dict>
 	<key>userconfigurationconfig</key>
