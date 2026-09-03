@@ -12,6 +12,7 @@ alias f="fresh"
 k() { kill-the-port "$1"; }
 alias l="lazygit"
 alias h="herdr"
+alias m="hyprmon"
 alias o="opencode -c"
 alias p="pi -c"
 alias y="spf"
