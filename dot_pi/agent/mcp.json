@@ -3,7 +3,7 @@
 	"requestTimeoutMs": 60000,
 	"mcpServers": {
 		"godot-ai": {
-			"command": "/home/arch/.local/bin/uvx",
+			"command": "$HOME/.local/bin/uvx",
 			"args": [
 				"--link-mode",
 				"copy",

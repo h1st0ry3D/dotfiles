@@ -355,7 +355,7 @@ async function discoverServer(
       return {
         id: m.id,
         name: buildLabel(m.id, sizeStr, caps),
-        reasoning: false,
+        reasoning: true,
         input: ["text"],
         cost: { input: 0, output: 0, cacheRead: 0, cacheWrite: 0 },
         contextWindow,
