@@ -2,7 +2,7 @@
 alias a="cd $HOME/agent"
 alias g="cd $HOME/Git"
 alias u="cd $HOME"
-alias n="cd $HOME/Notes/zettelkasten"
+alias z="cd $HOME/Notes/zettelkasten"
 alias dot="cd $HOME/.config"
 
 # tool alias
