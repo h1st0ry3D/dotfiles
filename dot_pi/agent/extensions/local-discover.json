@@ -1,4 +1,5 @@
 {
+  "enabled": false,
   "context": 1048576,
   "maxTokens": 16384,
   "timeoutMs": 5000,
