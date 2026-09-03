@@ -6,24 +6,11 @@
 	<string></string>
 	<key>connections</key>
 	<dict>
-		<key>6051927A-F6B3-4B5B-8358-624136FF50AE</key>
+		<key>14C8B17D-38CF-4B2A-B31B-0909C72D1642</key>
 		<array>
 			<dict>
 				<key>destinationuid</key>
-				<string>018539E5-0B71-4CCF-A106-86745324E887</string>
-				<key>modifiers</key>
-				<integer>0</integer>
-				<key>modifiersubtext</key>
-				<string></string>
-				<key>vitoclose</key>
-				<false/>
-			</dict>
-		</array>
-		<key>B9F808F8-7137-477C-B386-55180E413664</key>
-		<array>
-			<dict>
-				<key>destinationuid</key>
-				<string>018539E5-0B71-4CCF-A106-86745324E887</string>
+				<string>83FB921A-0DB1-4656-B6BC-3CB243C2190D</string>
 				<key>modifiers</key>
 				<integer>0</integer>
 				<key>modifiersubtext</key>
@@ -36,11 +23,11 @@
 	<key>createdby</key>
 	<string></string>
 	<key>description</key>
-	<string></string>
+	<string>Toggle frontmost window between maximized and restored size.</string>
 	<key>disabled</key>
 	<false/>
 	<key>name</key>
-	<string>Launch Terminal</string>
+	<string>Toggle Window Maximize</string>
 	<key>objects</key>
 	<array>
 		<dict>
@@ -51,15 +38,15 @@
 				<key>argument</key>
 				<integer>0</integer>
 				<key>focusedappvariable</key>
-				<false/>
+				<true/>
 				<key>focusedappvariablename</key>
 				<string></string>
 				<key>hotkey</key>
-				<integer>36</integer>
+				<integer>3</integer>
 				<key>hotmod</key>
-				<integer>1179648</integer>
+				<integer>1572864</integer>
 				<key>hotstring</key>
-				<string>↩</string>
+				<string>F</string>
 				<key>leftcursor</key>
 				<false/>
 				<key>modsmode</key>
@@ -70,7 +57,7 @@
 			<key>type</key>
 			<string>alfred.workflow.trigger.hotkey</string>
 			<key>uid</key>
-			<string>B9F808F8-7137-477C-B386-55180E413664</string>
+			<string>14C8B17D-38CF-4B2A-B31B-0909C72D1642</string>
 			<key>version</key>
 			<integer>2</integer>
 		</dict>
@@ -82,7 +69,39 @@
 				<key>escaping</key>
 				<integer>0</integer>
 				<key>script</key>
-				<string>/usr/bin/osascript -e 'tell application "Ghostty" to new window'</string>
+				<string>target_bundle_id="${focusedapp:-${target_app:-}}"
+if [ -z "$target_bundle_id" ]; then
+	target_bundle_id=$(/usr/bin/osascript -e 'tell application "System Events" to get bundle identifier of first application process whose frontmost is true' 2&gt;/dev/null)
+fi
+if [ -z "$target_bundle_id" ]; then
+	exit 0
+fi
+/usr/bin/osascript - "$target_bundle_id" &lt;&lt;'APPLESCRIPT'
+on run argv
+	if (count of argv) = 0 then return
+	set targetBundleID to item 1 of argv
+	if targetBundleID is "com.runningwithcrayons.Alfred" or targetBundleID is "com.runningwithcrayons.Alfred-Preferences" then return
+
+	tell application "System Events"
+		try
+			try
+				set targetProcess to first application process whose bundle identifier is targetBundleID
+			on error
+				set targetProcess to first application process whose name is targetBundleID
+			end try
+			if (count of windows of targetProcess) is greater than 0 then
+				try
+					perform action "AXZoom" of window 1 of targetProcess
+				on error
+					try
+						click (first button of window 1 of targetProcess whose description is "zoom button")
+					end try
+				end try
+			end if
+		end try
+	end tell
+end run
+APPLESCRIPT</string>
 				<key>scriptargtype</key>
 				<integer>0</integer>
 				<key>scriptfile</key>
@@ -93,44 +112,7 @@
 			<key>type</key>
 			<string>alfred.workflow.action.script</string>
 			<key>uid</key>
-			<string>018539E5-0B71-4CCF-A106-86745324E887</string>
-			<key>version</key>
-			<integer>2</integer>
-		</dict>
-		<dict>
-			<key>config</key>
-			<dict>
-				<key>action</key>
-				<integer>0</integer>
-				<key>argument</key>
-				<integer>0</integer>
-				<key>focusedappvariable</key>
-				<false/>
-				<key>focusedappvariablename</key>
-				<string></string>
-				<key>hotkey</key>
-				<integer>36</integer>
-				<key>hotmod</key>
-				<integer>1048576</integer>
-				<key>hotstring</key>
-				<string>↩</string>
-				<key>leftcursor</key>
-				<false/>
-				<key>modsmode</key>
-				<integer>0</integer>
-				<key>relatedApps</key>
-				<array>
-					<string>com.microsoft.VSCode</string>
-					<string>dev.zed.Zed</string>
-					<string>com.sourcegit-scm.sourcegit</string>
-				</array>
-				<key>relatedAppsMode</key>
-				<integer>2</integer>
-			</dict>
-			<key>type</key>
-			<string>alfred.workflow.trigger.hotkey</string>
-			<key>uid</key>
-			<string>6051927A-F6B3-4B5B-8358-624136FF50AE</string>
+			<string>83FB921A-0DB1-4656-B6BC-3CB243C2190D</string>
 			<key>version</key>
 			<integer>2</integer>
 		</dict>
@@ -139,24 +121,17 @@
 	<string></string>
 	<key>uidata</key>
 	<dict>
-		<key>018539E5-0B71-4CCF-A106-86745324E887</key>
-		<dict>
-			<key>xpos</key>
-			<real>270</real>
-			<key>ypos</key>
-			<real>55</real>
-		</dict>
-		<key>6051927A-F6B3-4B5B-8358-624136FF50AE</key>
+		<key>14C8B17D-38CF-4B2A-B31B-0909C72D1642</key>
 		<dict>
 			<key>xpos</key>
 			<real>50</real>
 			<key>ypos</key>
-			<real>170</real>
+			<real>50</real>
 		</dict>
-		<key>B9F808F8-7137-477C-B386-55180E413664</key>
+		<key>83FB921A-0DB1-4656-B6BC-3CB243C2190D</key>
 		<dict>
 			<key>xpos</key>
-			<real>50</real>
+			<real>300</real>
 			<key>ypos</key>
 			<real>50</real>
 		</dict>
