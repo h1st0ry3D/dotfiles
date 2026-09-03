@@ -50,3 +50,7 @@ o.bind("CTRL + ALT + F4", "Switch to VT4 (graphical - Hyprland)", "sh -c 'busctl
 -- Remap SUPER+SHIFT+ENTER from Browser -> Terminal
 hl.unbind("SUPER + SHIFT + RETURN")
 o.bind("SUPER + SHIFT + RETURN", "Terminal", { omarchy = "terminal" })
+
+-- Direct shutdown on physical power button, no menu
+hl.unbind("XF86PowerOff")
+o.bind("XF86PowerOff", "Shutdown", "omarchy system shutdown", { locked = true })
