@@ -31,6 +31,7 @@
 -- Rebind the clipboard manager from SUPER+CTRL+V to SUPER+Y.
 -- hl.unbind("SUPER + CTRL + V")
 o.bind("SUPER + Y", "Clipboard manager", "omarchy-shell shell toggle omarchy.clipboard")
+o.bind("ALT + SHIFT + 4", "Screenshot", "omarchy-capture-screenshot")
 
 -- Additional close-window binding (SUPER+W is the default).
 o.bind("SUPER + Q", "Close window", hl.dsp.window.close())

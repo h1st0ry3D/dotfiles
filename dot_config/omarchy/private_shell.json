@@ -42,6 +42,9 @@
           "id": "pushup.progress"
         },
         {
+          "id": "ojumpy"
+        },
+        {
           "id": "mobvoi.treadmill"
         },
         {
@@ -72,6 +75,10 @@
   "plugins": [
     {
       "id": "pushup.progress",
+      "enabled": true
+    },
+    {
+      "id": "ojumpy",
       "enabled": true
     },
     {
