@@ -11,15 +11,6 @@ compinit
 # Set up fzf key bindings and fuzzy completion
 if command -v fzf >/dev/null 2>&1; then source <(fzf --zsh); fi
 
-# Source brew zsh files
-test -f $(brew --prefix)/share/zsh-autosuggestions/zsh-autosuggestions.zsh && source $(brew --prefix)/share/zsh-autosuggestions/zsh-autosuggestions.zsh
-test -f $(brew --prefix)/share/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh && source $(brew --prefix)/share/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh
-
-# Disable underline highlight
-(( ${+ZSH_HIGHLIGHT_STYLES} )) || typeset -A ZSH_HIGHLIGHT_STYLES
-ZSH_HIGHLIGHT_STYLES[path]=none
-ZSH_HIGHLIGHT_STYLES[path_prefix]=none
-
 # Move cursor on shift arrow key press
 bindkey "\e[1;2D" backward-char
 bindkey "\e[1;2C" forward-char
@@ -32,6 +23,9 @@ test -f $HOME/.zsh/aliases && source $HOME/.zsh/aliases
 test -f $HOME/.zsh/functions && source $HOME/.zsh/functions
 test -f $HOME/.zshrc.local && source $HOME/.zshrc.local
 
+# Load mise
+if command -v mise >/dev/null 2>&1; then eval "$(mise activate zsh)"; fi
+
 # Load zoxide
 if command -v zoxide >/dev/null 2>&1; then eval "$(zoxide init zsh)"; fi
 
@@ -41,8 +35,5 @@ if command -v starship >/dev/null 2>&1; then eval "$(starship init zsh)"; fi
 # Pi
 export PATH="$HOME/.local/bin:$PATH"
 
-# opencode
-export PATH="$HOME/.opencode/bin:$PATH"
-
 # colima
-export DOCKER_HOST="$(docker context inspect colima --format '{{.Endpoints.docker.Host}}')"
+if command -v docker >/dev/null 2>&1; then export DOCKER_HOST="$(docker context inspect colima --format '{{.Endpoints.docker.Host}}')"; fi
