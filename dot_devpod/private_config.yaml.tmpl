@@ -11,10 +11,10 @@ contexts:
             userProvided: true
           DOCKER_HOST:
             userProvided: true
-            value: unix://$HOME/.config/colima/default/docker.sock
+            value: "unix://{{ .chezmoi.homeDir }}/.config/colima/default/docker.sock"
           DOCKER_PATH:
             userProvided: true
-            value: $HOME/.local/share/mise/installs/docker-cli/latest/docker/docker
+            value: docker
           INACTIVITY_TIMEOUT:
             userProvided: true
 defaultContext: default
