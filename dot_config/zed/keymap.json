@@ -201,5 +201,11 @@
     "unbind": {
       "cmd-k shift-enter": "pane::TogglePinTab"
     }
+  },
+  {
+    "context": "Editor",
+    "unbind": {
+      "ctrl-f": "editor::MoveRight"
+    }
   }
 ]
