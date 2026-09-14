@@ -121,8 +121,9 @@
 				<key>relatedApps</key>
 				<array>
 					<string>com.microsoft.VSCode</string>
-					<string>dev.zed.Zed</string>
 					<string>com.sourcegit-scm.sourcegit</string>
+					<string>dev.zed.Zed</string>
+					<string>com.github.GitHubClient</string>
 				</array>
 				<key>relatedAppsMode</key>
 				<integer>2</integer>
