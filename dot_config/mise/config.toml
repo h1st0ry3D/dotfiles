@@ -18,3 +18,37 @@ uv = "latest"
 zoxide = "latest"
 "github:loft-sh/devpod" = "0.6.15"
 "github:sinelaw/fresh" = "0.5.1"
+
+[tasks."zsh"]
+description = "Install standalone Zsh plugins via git shallow clone (macOS only)"
+run = """
+if [ "$(uname)" != "Darwin" ]; then
+    echo "Skipping Zsh plugins: This task only runs on macOS."
+    exit 0
+fi
+
+PLUGIN_DIR="$HOME/.zsh/plugins"
+mkdir -p "$PLUGIN_DIR"
+
+# 1. Handle Autosuggestions
+if [ ! -d "$PLUGIN_DIR/zsh-autosuggestions" ]; then
+    echo "Downloading zsh-autosuggestions..."
+    git clone --depth=1 https://github.com/zsh-users/zsh-autosuggestions "$PLUGIN_DIR/zsh-autosuggestions"
+else
+    echo "Updating zsh-autosuggestions..."
+    git -C "$PLUGIN_DIR/zsh-autosuggestions" pull
+fi
+
+# 2. Handle Syntax Highlighting
+if [ ! -d "$PLUGIN_DIR/zsh-syntax-highlighting" ]; then
+    echo "Downloading zsh-syntax-highlighting..."
+    git clone --depth=1 https://github.com/zsh-users/zsh-syntax-highlighting "$PLUGIN_DIR/zsh-syntax-highlighting"
+else
+    echo "Updating zsh-syntax-highlighting..."
+    git -C "$PLUGIN_DIR/zsh-syntax-highlighting" pull
+fi
+
+echo "Standalone plugins synced successfully on macOS!"
+"""
+
+
