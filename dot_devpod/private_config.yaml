@@ -1,0 +1,20 @@
+contexts:
+  default:
+    defaultIde: vscode
+    defaultProvider: docker
+    providers:
+      docker:
+        creationTimestamp: "2026-02-03T11:44:20Z"
+        initialized: true
+        options:
+          DOCKER_BUILDER:
+            userProvided: true
+          DOCKER_HOST:
+            userProvided: true
+            value: unix://$HOME/.config/colima/default/docker.sock
+          DOCKER_PATH:
+            userProvided: true
+            value: $HOME/.local/share/mise/installs/docker-cli/latest/docker/docker
+          INACTIVITY_TIMEOUT:
+            userProvided: true
+defaultContext: default
