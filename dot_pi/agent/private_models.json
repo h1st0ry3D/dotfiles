@@ -1,5 +1,49 @@
 {
   "providers" : {
+    "bonsai" : {
+      "api" : "openai-completions",
+      "apiKey" : "bonsai-local",
+      "authHeader" : true,
+      "baseUrl" : "http:\/\/192.168.0.99:8081\/v1",
+      "compat" : {
+        "maxTokensField" : "max_tokens",
+        "supportsDeveloperRole" : false,
+        "supportsReasoningEffort" : false
+      },
+      "models" : [
+        {
+          "contextWindow" : 182272,
+          "cost" : {
+            "cacheRead" : 0,
+            "cacheWrite" : 0,
+            "input" : 0,
+            "output" : 0
+          },
+          "id" : "ternary-bonsai-27b-pq20",
+          "input" : [
+            "text"
+          ],
+          "name" : "Bonsai Ternary-Bonsai-27B PQ2_0 (coding · 182K ctx)",
+          "reasoning" : true
+        },
+        {
+          "contextWindow" : 182272,
+          "cost" : {
+            "cacheRead" : 0,
+            "cacheWrite" : 0,
+            "input" : 0,
+            "output" : 0
+          },
+          "id" : "ternary-bonsai-27b-pq20-vision",
+          "input" : [
+            "text",
+            "image"
+          ],
+          "name" : "Bonsai Ternary-Bonsai-27B PQ2_0 (vision · 182K ctx)",
+          "reasoning" : true
+        }
+      ]
+    },
     "mtplx" : {
       "api" : "openai-completions",
       "apiKey" : "mtplx-local",

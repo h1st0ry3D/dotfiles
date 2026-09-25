@@ -6,7 +6,7 @@
 	<string></string>
 	<key>connections</key>
 	<dict>
-		<key>6051927A-F6B3-4B5B-8358-624136FF50AE</key>
+		<key>4F720B10-9971-41AB-950F-28D46D51BD50</key>
 		<array>
 			<dict>
 				<key>destinationuid</key>
@@ -19,7 +19,7 @@
 				<false/>
 			</dict>
 		</array>
-		<key>B9F808F8-7137-477C-B386-55180E413664</key>
+		<key>C738E644-B5ED-43CB-8ACF-7481A1A134E1</key>
 		<array>
 			<dict>
 				<key>destinationuid</key>
@@ -43,37 +43,6 @@
 	<string>Launch Terminal</string>
 	<key>objects</key>
 	<array>
-		<dict>
-			<key>config</key>
-			<dict>
-				<key>action</key>
-				<integer>0</integer>
-				<key>argument</key>
-				<integer>0</integer>
-				<key>focusedappvariable</key>
-				<false/>
-				<key>focusedappvariablename</key>
-				<string></string>
-				<key>hotkey</key>
-				<integer>36</integer>
-				<key>hotmod</key>
-				<integer>1179648</integer>
-				<key>hotstring</key>
-				<string>↩</string>
-				<key>leftcursor</key>
-				<false/>
-				<key>modsmode</key>
-				<integer>0</integer>
-				<key>relatedAppsMode</key>
-				<integer>0</integer>
-			</dict>
-			<key>type</key>
-			<string>alfred.workflow.trigger.hotkey</string>
-			<key>uid</key>
-			<string>B9F808F8-7137-477C-B386-55180E413664</string>
-			<key>version</key>
-			<integer>2</integer>
-		</dict>
 		<dict>
 			<key>config</key>
 			<dict>
@@ -111,6 +80,37 @@
 				<key>hotkey</key>
 				<integer>36</integer>
 				<key>hotmod</key>
+				<integer>655360</integer>
+				<key>hotstring</key>
+				<string>↩</string>
+				<key>leftcursor</key>
+				<false/>
+				<key>modsmode</key>
+				<integer>0</integer>
+				<key>relatedAppsMode</key>
+				<integer>0</integer>
+			</dict>
+			<key>type</key>
+			<string>alfred.workflow.trigger.hotkey</string>
+			<key>uid</key>
+			<string>4F720B10-9971-41AB-950F-28D46D51BD50</string>
+			<key>version</key>
+			<integer>2</integer>
+		</dict>
+		<dict>
+			<key>config</key>
+			<dict>
+				<key>action</key>
+				<integer>0</integer>
+				<key>argument</key>
+				<integer>0</integer>
+				<key>focusedappvariable</key>
+				<false/>
+				<key>focusedappvariablename</key>
+				<string></string>
+				<key>hotkey</key>
+				<integer>36</integer>
+				<key>hotmod</key>
 				<integer>1048576</integer>
 				<key>hotstring</key>
 				<string>↩</string>
@@ -121,8 +121,9 @@
 				<key>relatedApps</key>
 				<array>
 					<string>com.microsoft.VSCode</string>
-					<string>dev.zed.Zed</string>
 					<string>com.sourcegit-scm.sourcegit</string>
+					<string>dev.zed.Zed</string>
+					<string>com.github.GitHubClient</string>
 				</array>
 				<key>relatedAppsMode</key>
 				<integer>2</integer>
@@ -130,7 +131,7 @@
 			<key>type</key>
 			<string>alfred.workflow.trigger.hotkey</string>
 			<key>uid</key>
-			<string>6051927A-F6B3-4B5B-8358-624136FF50AE</string>
+			<string>C738E644-B5ED-43CB-8ACF-7481A1A134E1</string>
 			<key>version</key>
 			<integer>2</integer>
 		</dict>
@@ -146,19 +147,19 @@
 			<key>ypos</key>
 			<real>55</real>
 		</dict>
-		<key>6051927A-F6B3-4B5B-8358-624136FF50AE</key>
+		<key>4F720B10-9971-41AB-950F-28D46D51BD50</key>
 		<dict>
 			<key>xpos</key>
-			<real>50</real>
+			<real>55</real>
 			<key>ypos</key>
-			<real>170</real>
+			<real>60</real>
 		</dict>
-		<key>B9F808F8-7137-477C-B386-55180E413664</key>
+		<key>C738E644-B5ED-43CB-8ACF-7481A1A134E1</key>
 		<dict>
 			<key>xpos</key>
-			<real>50</real>
+			<real>55</real>
 			<key>ypos</key>
-			<real>50</real>
+			<real>185</real>
 		</dict>
 	</dict>
 	<key>userconfigurationconfig</key>

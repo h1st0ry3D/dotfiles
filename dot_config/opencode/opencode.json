@@ -51,6 +51,28 @@
       "options": {
         "baseURL": "http://localhost:11434/v1"
       }
+    },
+    "bonsai": {
+      "npm": "@ai-sdk/openai-compatible",
+      "name": "Ternary Bonsai 27B PQ2_0 · 182K ctx",
+      "options": {
+        "baseURL": "http://192.168.0.99:8081/v1",
+        "timeout": 3600000,
+        "headerTimeout": 600000
+      },
+      "models": {
+        "ternary-bonsai-27b-pq20-vision": {
+          "name": "Ternary Bonsai 27B PQ2_0 (vision · 182K ctx)",
+          "limit": {
+            "context": 182272,
+            "output": 32768
+          },
+          "options": {
+            "temperature": 1.0,
+            "topP": 0.95
+          }
+        }
+      }
     }
   },
   "model": "llama.cpp/google/gemma-4-12B-it-qat-q4_0-gguf:Q4_0"
