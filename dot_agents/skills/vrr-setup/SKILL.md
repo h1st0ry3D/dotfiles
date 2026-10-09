@@ -22,7 +22,7 @@ Four separate claims get conflated when people say "is VRR working". Keep them a
 | 1 | Monitor *can* do VRR | EDID contains a vendor FreeSync/Adaptive-Sync VSDB |
 | 2 | Kernel *accepted* VRR on this connector | `hyprctl monitors` shows `vrr: true` |
 | 3 | Mode + VRR coexist at the target refresh | `hyprctl monitors` shows the high refresh *and* `vrr: true` |
-| 4 | The *panel physically varies* | Measurement (gamescope / probe) or A/B perception |
+| 4 | The *panel physically varies* | Human A/B perception, or root + a DRM state read |
 
 Most troubleshooting never gets past #2. Only #4 proves the display hardware responded.
 
@@ -111,7 +111,8 @@ accepted `VRR_ENABLED` — not merely that the config asked for it.
 For a direct kernel read (see `scripts/vrrcheck.c`), which requires root:
 
 ```bash
-sudo ./scripts/vrrcheck /dev/dri/card1        # prints VRR_CAPABLE and VRR_ENABLED
+gcc -O2 -I/usr/include/libdrm -o /tmp/vrrcheck scripts/vrrcheck.c -ldrm   # -I is required on Arch
+sudo /tmp/vrrcheck /dev/dri/card1        # prints VRR_CAPABLE and VRR_ENABLED
 ```
 
 ### Step 4 — Prove the panel responds
@@ -122,15 +123,46 @@ Software state cannot tell you the panel is varying. Use one or both:
 smoothly scrolling rows. Above the panel's fixed refresh the rows judder visibly; with VRR the
 window is wide enough that low framerates stay smooth. Toggle `vrr` and compare at the same rate.
 
+Always run **both** halves. "It looked smooth" alone proves nothing — a rate too close to the panel's
+refresh, or a window too small, reads as smooth with VRR off. Pick a rate well below the refresh
+(70 or 100 on a 144 Hz panel) and confirm the control judders. When toggling, remember gotcha 1b: a
+`vrr`-only file edit plus reload is silently ignored, so nudge `position` and verify `hyprctl monitors`
+actually flipped.
+
 **Refresh-rate probe** — `scripts/vrr-probe.html`. Measures real `requestAnimationFrame`
 cadence. Confirms the high-refresh mode is genuinely being scanned out rather than merely declared.
 
-**gamescope (best evidence)** — reports actual refresh as it changes:
+**gamescope — only when it can take a DRM lease.** gamescope is the best evidence *in principle*
+(it owns the scanout, so it can report the refresh actually being scanned out), but nested under
+Hyprland it needs a `drm_lease_v1` lease on the parent's output, and the NVIDIA proprietary driver
+does not implement DRM leasing at all — `nvidia.ko` ships zero `drm_lease` / `lessee` symbols. So on
+NVIDIA this is a no-op; do not burn time on it.
 
 ```bash
 omarchy pkg add gamescope
-gamescope --vrr 1 -- gamescope --stats
 ```
+
+Flag names changed in gamescope 3.x — `--vrr` and `--stats` were **removed** and will abort the run
+with `unrecognized option`:
+
+| Old (pre-3.x) | Current |
+|---|---|
+| `gamescope --vrr 1` | `gamescope --adaptive-sync` |
+| `gamescope --stats` | gone; `--stats-path PATH` now takes an argument |
+
+Note `--stats` prefix-matches `--stats-path`, so `gamescope --stats` fails as
+`option '--stats-path' requires an argument`, not `unrecognized option` — easy to misread.
+
+Even with correct flags, confirm it actually engaged rather than assuming. A nested run that fell
+back to virtual connectors logs `Creating headless backend` and sets no `GAMESCOPE_VRR_ENABLED` in
+the child environment. Check with:
+
+```bash
+timeout -s KILL 12 gamescope --adaptive-sync -b -- sh -c 'env | grep -i GAMESCOPE' 2>&1 | grep -E 'headless|lease|VRR'
+```
+
+Absent `GAMESCOPE_VRR_ENABLED` / `_CAPABLE` / `_FEEDBACK` means no VRR — those are only injected
+when gamescope owns the output.
 
 ---
 
@@ -146,7 +178,33 @@ These are verified against Hyprland 0.56.2 and a Radeon 5500M (Navi 14) on amdgp
 hyprctl eval 'hl.monitor({ output = "DP-6", mode = "2560x1440@144", position = "auto", scale = 1, vrr = 0 })'
 ```
 
-Edit the file and `hyprctl reload` instead. This is the single most common wasted hour here.
+Edit the file and `hyprctl reload` — **but that is not sufficient on its own, see below.**
+
+**1b. Editing the file and reloading does NOT change `vrr` either.** This is the part that wastes the
+most time, because it is counter-intuitive: the file clearly says `vrr = 0`, the reload reports no
+error, and `hyprctl monitors` still prints `vrr: true`. Verified empirically on 0.56.2.
+
+`ensureMonitorStatus()` skips the monitor when the new rule compares `COMPARISON_FULL_MATCH` against
+the *active* rule, and `m_vrr` is in neither the hard nor the soft list. A rule differing only in
+`vrr` is a full match, so the monitor is skipped and `ensureVRR` never runs. This applies to the file
+path exactly as it does to `hyprctl eval`.
+
+Workaround — nudge a field that *is* in `compare()`, so the comparison no longer fully matches.
+`position` is in the soft list, so `"auto"` → `"0x0"` is enough for a single monitor at the origin:
+
+```lua
+hl.monitor({ output = "desc:...", mode = "2560x1440@144", position = "0x0", scale = 1, vrr = 0 })
+```
+
+After `hyprctl reload`, **always confirm the live state actually flipped** — do not trust that the
+reload took:
+
+```bash
+hyprctl monitors all | grep -E '^Monitor|vrr:'
+```
+
+Anything in the hard list (`mode`, `scale`, `enable10bit`, `drmMode`, `disabled`) works too, but
+those change what you are testing. `position` is the cheapest nudge that is visually a no-op.
 
 **2. `hyprctl keyword` is dead on the Lua config parser.** You will see
 `keyword can't work with non-legacy parsers`. Use `hyprctl eval '<lua>'`.

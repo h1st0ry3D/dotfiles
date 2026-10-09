@@ -23,11 +23,14 @@ hl.env("AVALONIA_SCREEN_SCALE_FACTORS", "eDP-1=" .. omarchy_avalonia_scale)
 -- workspace, so windows can vanish onto a fake second screen. Disable it.
 hl.monitor({ output = "eDP-2", disabled = true })
 
--- AMD FreeSync / Adaptive-Sync (VRR) on the Dell S2725DC.
--- The monitor advertises FreeSync in its EDID (48-144 Hz) and is wired to the
--- Radeon 5500M over DisplayPort on DP-6, so amdgpu can drive it -- but VRR is
--- off unless a monitor rule asks for it. Matched by description rather than
--- "DP-6" so it keeps working if the cable moves to another port.
+-- Adaptive-Sync (VRR) on the Dell S2725DC. Shared by both machines, so nothing
+-- here may name a connector or a GPU. The panel advertises VRR over every
+-- transport it is likely to be plugged into -- an AMD FreeSync VSDB (48-144 Hz)
+-- plus an HDMI Forum VSDB (VRRmin 48 / VRRmax 144) -- so the same rule covers
+-- amdgpu over DisplayPort on the laptop and nvidia-drm over HDMI on the desktop.
+-- Matched by description, not connector, so the cable can move between DP-6 and
+-- HDMI-A-1 without editing this file.
+-- VRR is off unless a rule asks for it, which is the whole point of vrr = 1.
 -- Runs at 144 Hz rather than the 59.95 Hz "preferred" mode: VRR scales with the
 -- refresh rate, and at 60 Hz the variable window is squeezed into 48-60 Hz.
 -- 144 Hz opens it up to the full 48-144 Hz the panel advertises.
