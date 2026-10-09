@@ -121,6 +121,8 @@
 				<key>relatedApps</key>
 				<array>
 					<string>com.microsoft.VSCode</string>
+					<string>com.stablyai.orca</string>
+					<string>com.t3tools.t3code</string>
 					<string>com.sourcegit-scm.sourcegit</string>
 					<string>dev.zed.Zed</string>
 					<string>com.github.GitHubClient</string>
