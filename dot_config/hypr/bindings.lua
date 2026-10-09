@@ -84,6 +84,8 @@ o.bind("MOD3 + F", "Find (as Ctrl+F)", send_shortcut_once("CTRL", "f"))
 o.bind("MOD3 + T", "New tab (as Ctrl+T)", send_shortcut_once("CTRL", "t"))
 o.bind("MOD3 + A", "Select all (as Ctrl+A)", send_shortcut_once("CTRL", "a"))
 o.bind("MOD3 + W", "Close tab (as Ctrl+W)", send_shortcut_once("CTRL", "w"))
+o.bind("MOD3 + R", "Reload (as Ctrl+R)", send_shortcut_once("CTRL", "r"))
+o.bind("MOD3 + Z", "Revert (as Ctrl+Z)", send_shortcut_once("CTRL", "z"))
 o.bind("MOD3 + C", "Copy (as Ctrl+C)", send_shortcut_once("CTRL", "c"))
 o.bind("MOD3 + X", "Cut (as Ctrl+X)", send_shortcut_once("CTRL", "x"))
 o.bind("MOD3 + V", "Paste (as Ctrl+V)", send_shortcut_once("CTRL", "v"))
@@ -103,6 +105,11 @@ o.bind("SUPER + T", "New tab (as Ctrl+T)", send_shortcut_once("CTRL", "t"))
 hl.unbind("SUPER + W")
 o.bind("SUPER + W", "Close tab (as Ctrl+W)", send_shortcut_once("CTRL", "w"))
 o.bind("SUPER + U", "Toggle window floating/tiling", hl.dsp.window.float({ action = "toggle" }))
+
+-- Super + R/Z: forward Ctrl+R / Ctrl+Z. Omarchy only binds these with extra
+-- modifiers (Super+Ctrl+R reminders, Super+Ctrl+Z zoom), so no unbind needed.
+o.bind("SUPER + R", "Reload (as Ctrl+R)", send_shortcut_once("CTRL", "r"))
+o.bind("SUPER + Z", "Revert (as Ctrl+Z)", send_shortcut_once("CTRL", "z"))
 
 -- Alt + arrows: forward the matching Ctrl+arrow shortcut (word/line jumps,
 -- paragraph moves) to the focused window.
