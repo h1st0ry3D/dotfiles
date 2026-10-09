@@ -39,16 +39,26 @@
       ],
       "right": [
         {
-          "id": "pushup.progress"
+          "id": "omarchy.tray",
+          "pinned": [
+            "Mullvad VPN_status_icon_1"
+          ],
+          "hidden": []
         },
         {
-          "id": "ojumpy"
+          "id": "h1st0ry3d.odisplay"
         },
         {
-          "id": "mobvoi.treadmill"
+          "id": "h1st0ry3d.opushy"
         },
         {
-          "id": "omarchy.tray"
+          "id": "h1st0ry3d.ojumpy"
+        },
+        {
+          "id": "h1st0ry3d.owalky"
+        },
+        {
+          "id": "explify.syncthing"
         },
         {
           "id": "omarchy.agents"
@@ -74,15 +84,15 @@
   },
   "plugins": [
     {
-      "id": "pushup.progress",
+      "id": "h1st0ry3d.opushy",
       "enabled": true
     },
     {
-      "id": "ojumpy",
+      "id": "h1st0ry3d.ojumpy",
       "enabled": true
     },
     {
-      "id": "mobvoi.treadmill",
+      "id": "h1st0ry3d.owalky",
       "enabled": true
     }
   ]
