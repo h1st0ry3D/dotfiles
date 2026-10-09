@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>VRR Judder / FreeSync A-B Test</title>
+<style>
+  :root { color-scheme: dark; }
+  body { margin:0; background:#000; overflow:hidden;
+         font-family: ui-monospace, "JetBrains Mono", Menlo, monospace; }
+  #stage { position:fixed; inset:0; width:100%; height:100%; display:block; }
+
+  #hud { position:fixed; left:50%; top:14px; transform:translateX(-50%);
+         background:rgba(0,0,0,.72); border:1px solid #333; border-radius:10px;
+         padding:10px 16px; display:flex; gap:22px; align-items:center; z-index:10;
+         backdrop-filter: blur(6px); }
+  #hud .stat { text-align:center; }
+  #hud .k { font-size:10px; letter-spacing:.14em; color:#888; text-transform:uppercase; }
+  #fps { font-size:26px; font-weight:700; color:#0f0; line-height:1.1; }
+  #fps.bad { color:#f44; }
+  .btns { display:flex; gap:6px; }
+  button { font:inherit; font-size:13px; padding:6px 11px; cursor:pointer;
+           background:#1c1c1c; color:#ddd; border:1px solid #444; border-radius:6px; }
+  button:hover { background:#2a2a2a; }
+  button.on { background:#0f0; color:#000; border-color:#0f0; font-weight:700; }
+
+  #guide { position:fixed; right:14px; bottom:14px; width:430px; max-width:44vw; z-index:10;
+           background:rgba(0,0,0,.8); border:1px solid #333; border-radius:10px;
+           padding:12px 15px; font-size:12.5px; line-height:1.6; color:#bbb;
+           backdrop-filter: blur(6px); }
+  #guide b { color:#fff; }
+  #guide kbd { background:#222; border:1px solid #444; border-radius:4px;
+               padding:1px 6px; font-size:11.5px; color:#eee; }
+  #guide .ok { color:#0f0; } #guide .no { color:#f44; } #guide .warn { color:#f80; }
+  #guide input { font:inherit; width:100%; background:#181818; color:#eee;
+                 border:1px solid #444; border-radius:5px; padding:5px 7px; margin:4px 0 2px; }
+  #guide pre { background:#181818; border:1px solid #333; border-radius:5px; padding:7px 9px;
+               overflow-x:auto; font-size:11px; color:#9fd; margin:6px 0 0; }
+  #cmd { white-space:pre; }
+  #togg { position:fixed; left:14px; top:14px; z-index:11; }
+</style>
+</head>
+<body>
+<canvas id="stage"></canvas>
+<button id="togg" onclick="g.style.display = g.style.display==='none'?'block':'none'">Guide</button>
+
+<div id="hud">
+  <div class="stat">
+    <div class="k">Measured</div>
+    <div id="fps">--</div>
+  </div>
+  <div class="stat">
+    <div class="k">Lock content to</div>
+    <div class="btns" id="btns"></div>
+  </div>
+</div>
+
+<div id="guide">
+  <b>What you are looking for</b><br>
+  Lock the content to a rate <b>below</b> your panel's refresh (e.g. 70 or 100 on a 144 Hz
+  monitor). The scrolling rows should drift <span class="ok">smoothly and continuously</span>.
+
+  <hr style="border-color:#333;margin:10px 0">
+  <b>A/B test</b> — set your monitor's description (from <kbd>hyprctl monitors all</kbd>):<br>
+  <input id="desc" value="DEL S2725DC" spellcheck="false">
+  <div style="margin-top:6px;color:#888">Then edit <kbd>~/.config/hypr/monitors.lua</kbd> so the rule reads <kbd>vrr = 0</kbd>, and run <kbd>hyprctl reload</kbd>. Repeat at <kbd>vrr = 1</kbd>.</div>
+  <pre id="cmd"></pre>
+
+  <div class="warn" style="margin-top:9px">
+    Do <b>not</b> use <kbd>hyprctl eval</kbd> to toggle <kbd>vrr</kbd> — on Hyprland 0.56 a rule
+    change where only <kbd>vrr</kbd> differs is silently skipped. Edit the file and reload.
+  </div>
+
+  <div style="margin-top:9px">
+    With VRR off the rows <span class="no">judder in bands</span> as the content rate beats
+    against the fixed panel. That difference <i>is</i> your FreeSync working.
+  </div>
+</div>
+
+<script>
+const cv = document.getElementById('stage');
+const cx = cv.getContext('2d');
+const g  = document.getElementById('guide');
+
+let W, H, dpr, rows = [];
+function resize() {
+  dpr = Math.min(window.devicePixelRatio || 1, 2);
+  W = cv.clientWidth; H = cv.clientHeight;
+  cv.width = W * dpr; cv.height = H * dpr;
+  cx.setTransform(dpr, 0, 0, dpr, 0, 0);
+  cx.font = '600 30px ui-monospace, Menlo, monospace';
+  cx.textBaseline = 'middle';
+  buildRows();
+}
+addEventListener('resize', resize);
+
+function buildRows() {
+  rows = [];
+  const gap = 34, n = Math.max(6, Math.floor((H - 120) / gap));
+  const words = 'ADAPTIVE SYNC FREE SYNC VARIABLE REFRESH SCAN OUT HORIZONTAL DRIFT JUDDER LATTICE MOTION TEST PATTERN 0123456789 ';
+  for (let i = 0; i < n; i++) {
+    let s = '', seed = i * 7919;
+    while (s.length < 260) {
+      seed = (seed * 1103515245 + 12345) & 0x7fffffff;
+      s += words[seed % words.length];
+    }
+    rows.push({ text: s, speed: 150 + i * 42, x: 0, y: 80 + i * gap });
+  }
+}
+
+function draw() {
+  cx.fillStyle = '#000';
+  cx.fillRect(0, 0, W, H);
+  for (const r of rows) {
+    r.x -= r.speed / 60;
+    const w = cx.measureText(r.text).width;
+    if (w > 0 && r.x < -w) r.x += w;
+    cx.fillStyle = '#f2f2f2';
+    cx.fillText(r.text, r.x, r.y);
+    cx.fillText(r.text, r.x + w, r.y);   // seamless wrap
+  }
+}
+
+// ---- framerate lock ----
+let targetFps = 70;
+const RATES = [144, 120, 100, 90, 75, 70, 60, 50, 45];
+const btns = document.getElementById('btns');
+for (const r of RATES) {
+  const b = document.createElement('button');
+  b.textContent = r;
+  b.onclick = () => { targetFps = r; mark(); };
+  b.dataset.rate = r;
+  btns.appendChild(b);
+}
+function mark() {
+  [...btns.children].forEach(b => b.classList.toggle('on', +b.dataset.rate === targetFps));
+}
+
+const fpsEl = document.getElementById('fps');
+let nextT = performance.now(), frames = 0, winStart = performance.now();
+
+function loop(now) {
+  requestAnimationFrame(loop);
+  const interval = 1000 / targetFps;
+  if (now < nextT) return;
+  nextT += interval;
+  if (nextT < now - interval) nextT = now;      // never accumulate debt
+
+  draw();
+  frames++;
+  if (now - winStart >= 500) {
+    const fps = Math.round(frames * 1000 / (now - winStart));
+    fpsEl.textContent = fps + ' fps';
+    fpsEl.classList.toggle('bad', Math.abs(fps - targetFps) > 2);
+    frames = 0; winStart = now;
+  }
+}
+
+// ---- A/B command helper ----
+const desc = document.getElementById('desc');
+const cmd  = document.getElementById('cmd');
+function renderCmd() {
+  const d = desc.value.trim() || 'DEL S2725DC';
+  cmd.textContent =
+    "hl.monitor({\n" +
+    '  output = "desc:' + d + '",\n' +
+    '  mode = "2560x1440@144",\n' +
+    '  position = "auto", scale = 1,\n' +
+    "  vrr = 0,   -- <-- flip to 1 for VRR on\n" +
+    "})";
+}
+desc.addEventListener('input', renderCmd);
+
+resize(); mark(); renderCmd(); requestAnimationFrame(loop);
+</script>
+</body>
+</html>

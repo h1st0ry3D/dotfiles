@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Refresh Rate Probe</title>
+<style>
+  :root { color-scheme: dark; }
+  body { margin:0; background:#000; color:#fff; height:100vh;
+         display:flex; align-items:center; justify-content:center;
+         font-family: ui-monospace, Menlo, monospace; text-align:center; }
+  .big { font-size:110px; font-weight:800; line-height:1; }
+  .lbl { font-size:13px; letter-spacing:.2em; color:#888; text-transform:uppercase; margin-top:10px; }
+  .sub { font-size:14px; color:#aaa; margin-top:22px; line-height:1.75; }
+  .ok { color:#0f0; } .warn { color:#f80; } .bad { color:#f44; }
+</style>
+</head>
+<body>
+<div>
+  <div class="big" id="fps">--</div>
+  <div class="lbl">animation frame rate on this output</div>
+  <div class="sub" id="info">sampling...</div>
+</div>
+<script>
+/*
+ * Measures requestAnimationFrame cadence.
+ *
+ * The compositor paces rAF to the output's scanout rate, so a page animating
+ * continuously should sit at the monitor's configured refresh rate. This proves
+ * the high-refresh mode is genuinely being scanned out, rather than the
+ * compositor merely reporting it.
+ *
+ * It does NOT prove VRR. This measures compositor pacing, not panel response --
+ * only gamescope or an A/B judder test can show the panel actually varying.
+ */
+const fpsEl = document.getElementById('fps');
+const infoEl = document.getElementById('info');
+
+let frames = 0, start = performance.now(), samples = [];
+
+function tick(now) {
+  frames++;
+  const el = now - start;
+
+  if (el >= 1000) {
+    const fps = frames * 1000 / el;
+    samples.push(fps);
+    if (samples.length > 6) samples.shift();
+    fpsEl.textContent = fps.toFixed(1);
+    frames = 0; start = now;
+
+    if (samples.length >= 4) {
+      const sorted = samples.slice().sort((a, b) => a - b);
+      const med = sorted[Math.floor(sorted.length / 2)];
+      const lo = Math.min(...samples).toFixed(1);
+      const hi = Math.max(...samples).toFixed(1);
+
+      let verdict;
+      if      (med > 130) verdict = '<span class="ok">144 Hz mode is live</span>';
+      else if (med > 105) verdict = '<span class="ok">holding ~120 Hz</span>';
+      else if (med > 88)  verdict = '<span class="ok">holding ~90-100 Hz</span>';
+      else if (med > 55)  verdict = '<span class="warn">looks like ~60 Hz</span>';
+      else                verdict = '<span class="bad">unexpectedly low</span>';
+
+      infoEl.innerHTML = `last ${samples.length}s &nbsp; lo ${lo} &nbsp; median ${med.toFixed(1)} &nbsp; hi ${hi}<br>${verdict}`;
+    }
+  }
+  requestAnimationFrame(tick);
+}
+requestAnimationFrame(tick);
+</script>
+</body>
+</html>
