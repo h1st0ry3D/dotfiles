@@ -11,6 +11,15 @@ hl.config({
   },
 })
 
+-- Caps Lock: no longer Compose and no Caps Lock toggling. It becomes a
+-- Hyper (Mod3) modifier used by the Caps + <key> bindings in bindings.lua.
+-- Both Shifts together still toggles Caps Lock (Omarchy default escape hatch).
+hl.config({
+  input = {
+    kb_options = "caps:hyper,shift:both_capslock_cancel",
+  },
+})
+
 -- Keyboard layout and options.
 -- See https://wiki.hypr.land/Configuring/Basics/Variables/#input
 -- hl.config({
