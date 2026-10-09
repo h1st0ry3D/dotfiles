@@ -26,7 +26,7 @@ require("hypr.autostart")
 require("default.hypr.toggles")
 
 -- Add any other personal Hyprland configuration below.
--- o.window("qemu", { workspace = "5" })
+o.window("com.t3tools.T3Code", { workspace = "2" })
 
 -- hyprmon: managed monitor profile include (optional)
 require("default.hypr.require_optional").module("hyprmon")

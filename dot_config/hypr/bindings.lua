@@ -60,9 +60,9 @@ o.bind("XF86PowerOff", "Shutdown", "omarchy system shutdown", { locked = true })
 -- and is free to use as a modifier.
 
 -- Caps + 1..4: launch the app, or focus it if it is already running.
-o.bind("MOD3 + 1", "T3 Code", { focus = "t3code", launch = "t3code" })
-o.bind("MOD3 + 2", "VS Code", { focus = "^Code$", launch = "code" })
-o.bind("MOD3 + 3", "SourceGit", { focus = "sourcegit", launch = "sourcegit" })
+o.bind("MOD3 + 1", "T3 Code (Nightly)", { focus = "t3code", launch = "t3code-nightly" })
+o.bind("MOD3 + 2", "SourceGit", { focus = "sourcegit", launch = "sourcegit" })
+o.bind("MOD3 + 3", "VS Code", { focus = "^Code$", launch = "code" })
 o.bind("MOD3 + 4", "Brave Origin", { focus = "brave-origin", launch = "brave-origin" })
 
 -- Hyprland's send_shortcut can lose the release of its synthetic key, making
@@ -127,3 +127,14 @@ o.bind("ALT + 5", "[ bracket", send_shortcut_once("MOD5", "8"))
 o.bind("ALT + 6", "] bracket", send_shortcut_once("MOD5", "9"))
 o.bind("ALT + 8", "{ brace", send_shortcut_once("MOD5", "7"))
 o.bind("ALT + 9", "} brace", send_shortcut_once("MOD5", "0"))
+
+-- Window drag on Alt+click instead of Super+click, which frees Super+click
+-- entirely and is easier to hit than Super+Shift.
+-- (Super+click -> Ctrl+click via ydotool is NOT viable here: Hyprland's
+-- modifier mask is a union across input devices, so while the physical Super
+-- is held the injected click reaches the client as Super+Ctrl+click and apps
+-- treat it as a plain click. Verified against Nautilus.)
+hl.unbind("SUPER + mouse:272")
+hl.unbind("SUPER + mouse:273")
+o.bind("ALT + mouse:272", "Move window", hl.dsp.window.drag(), { mouse = true })
+o.bind("ALT + mouse:273", "Resize window", hl.dsp.window.resize(), { mouse = true })
