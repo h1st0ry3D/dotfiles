@@ -145,3 +145,11 @@ hl.unbind("SUPER + mouse:272")
 hl.unbind("SUPER + mouse:273")
 o.bind("ALT + mouse:272", "Move window", hl.dsp.window.drag(), { mouse = true })
 o.bind("ALT + mouse:273", "Resize window", hl.dsp.window.resize(), { mouse = true })
+
+-- Odisplay: one key per input, doing exactly what clicking that row in the
+-- panel does. The argument is the input's key in
+-- ~/.config/odisplay/odisplay.json, so reordering the rows in odisplay does not
+-- move the keys, and a row hidden from the panel is still reachable.
+o.bind("CTRL + ALT + 1", "Odisplay: usbc", "odisplay switch usbc")
+o.bind("CTRL + ALT + 2", "Odisplay: dp", "odisplay switch dp")
+o.bind("CTRL + ALT + 3", "Odisplay: hdmi", "odisplay switch hdmi")
