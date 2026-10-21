@@ -18,8 +18,7 @@ alias h="herdr"
 alias m="hyprmon"
 alias o="opencode -c"
 alias p="pi -c"
-alias docker="podman"
-alias pod="devcontainer"
+alias dev="devpod"
 
 # biome alias
 alias b="biome check --write ."
