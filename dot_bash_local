@@ -1,0 +1,10 @@
+# Shim: all shared bash+zsh config lives in ~/.config/shell/
+# (aliases.sh, functions.sh, local.sh). Nothing shell-specific here except flyline.
+SHELL_CONFIG="${XDG_CONFIG_HOME:-$HOME/.config}/shell"
+for _f in aliases functions local; do
+    [ -f "$SHELL_CONFIG/$_f.sh" ] && source "$SHELL_CONFIG/$_f.sh"
+done
+unset _f
+
+# Flyline (bash-only)
+enable -f /usr/lib/bash/libflyline.so flyline 2>/dev/null

@@ -1,21 +1,23 @@
-# cd path alias
+# Shared aliases for bash + zsh.
+# Sourced from ~/.bashrc and ~/.zshrc.
+# Keep this file portable: aliases only, no bindkey/compinit/shell options.
+
+# cd path aliases
 alias a="cd $HOME/agent"
 alias g="cd $HOME/Git"
 alias u="cd $HOME"
-alias z="cd $HOME/Notes/zettelkasten"
 alias dot="cd $HOME/.config"
 
-# tool alias
+# tool aliases
 alias c="chezmoi"
 alias d="hunk diff --watch"
 alias f="fresh"
-k() { kill-the-port "$1"; }
+alias j="just"
 alias l="lazygit"
 alias h="herdr"
 alias m="hyprmon"
 alias o="opencode -c"
 alias p="pi -c"
-alias y="spf"
 alias docker="podman"
 alias pod="devcontainer"
 

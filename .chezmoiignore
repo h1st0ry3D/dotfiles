@@ -1,0 +1,3 @@
+# Files chezmoi must never manage. They are machine/host specific.
+.bash_local
+.zshrc.local

@@ -8,6 +8,11 @@
 # (don't mess with these directly, just overwrite them here!)
 source "$OMARCHY_PATH/default/bash/rc"
 
-# Source bash files
-[ -f ~/.bash_aliases ] && source ~/.bash_aliases
+# Shared bash + zsh aliases/functions: single source of truth.
+# Same files are sourced by .zshrc on macOS.
+SHELL_SHARED="${XDG_CONFIG_HOME:-$HOME/.config}/shell"
+[ -f "$SHELL_SHARED/aliases.sh" ] && source "$SHELL_SHARED/aliases.sh"
+[ -f "$SHELL_SHARED/functions.sh" ] && source "$SHELL_SHARED/functions.sh"
+
+# Machine-local bash config (secrets, host-specific). Never tracked by chezmoi.
 [ -f ~/.bash_local ] && source ~/.bash_local

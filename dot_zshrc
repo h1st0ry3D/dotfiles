@@ -18,9 +18,13 @@ bindkey "\e[1;2C" forward-char
 # Load .env.ssh (when available)
 test -f $HOME/.ssh/.env.ssh && source $HOME/.ssh/.env.ssh
 
-# Load .zsh files (when available)
-test -f $HOME/.zsh/aliases && source $HOME/.zsh/aliases
-test -f $HOME/.zsh/functions && source $HOME/.zsh/functions
+# Shared bash + zsh aliases/functions: single source of truth.
+# Same files are sourced by .bashrc on Linux.
+SHELL_SHARED="${XDG_CONFIG_HOME:-$HOME/.config}/shell"
+test -f "$SHELL_SHARED/aliases.sh" && source "$SHELL_SHARED/aliases.sh"
+test -f "$SHELL_SHARED/functions.sh" && source "$SHELL_SHARED/functions.sh"
+
+# Machine-local zsh config (host-specific). Never tracked by chezmoi.
 test -f $HOME/.zshrc.local && source $HOME/.zshrc.local
 
 # Load mise
