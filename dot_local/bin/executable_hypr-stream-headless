@@ -1,0 +1,45 @@
+#!/bin/bash
+
+# omarchy:summary=Keep a headless Hyprland output alive for Sunshine/Moonlight
+
+# Powering off the Dell drops its DisplayPort link. Hyprland then has no outputs
+# at all, stops compositing, and Sunshine's wlr-screencopy just returns black.
+# A headless output that always exists gives the session somewhere to render;
+# the real monitor mirrors it (see monitors.lua), so the physical screen and the
+# Moonlight stream stay the same picture either way.
+#
+# Run from ~/.config/hypr/autostart.lua. Idempotent, so a reload or a second
+# call cannot leave a STREAM-1 behind.
+
+set -eu
+
+# Laptop only. The desktop drives the panel directly and gains nothing from a
+# virtual output, so it keeps its previous behaviour even though it shares this
+# Hyprland config.
+if ! omarchy-hw-laptop 2>/dev/null; then
+  exit 0
+fi
+
+# And only where Sunshine actually runs. Shared dotfiles reach machines that are
+# not stream servers; there the panel must stay a plain display.
+command -v sunshine >/dev/null 2>&1 || exit 0
+systemctl --user is-enabled --quiet sunshine 2>/dev/null ||
+  systemctl --user is-active --quiet sunshine 2>/dev/null || exit 0
+
+OUTPUT=${OUTPUT:-STREAM}
+
+# hyprctl exits non-zero when the compositor is gone; that is not our problem.
+monitors=$(hyprctl monitors all -j 2>/dev/null) || exit 0
+
+if ! jq -e --arg n "$OUTPUT" 'any(.[]; .name == $n)' <<<"$monitors" >/dev/null 2>&1; then
+  hyprctl output create headless "$OUTPUT" >/dev/null || exit 0
+fi
+
+# Workspaces bound to STREAM (monitors.lua) cannot be stolen, but at boot the
+# panel connects before this script has created the output, so one can still be
+# parked on a mirror where it is invisible and unreachable. Drag those back.
+for mirror in $(jq -r '.[] | select(.mirrorOf != "none") | .name' <<<"$monitors"); do
+  for workspace in $(hyprctl workspaces -j | jq -r --arg m "$mirror" '.[] | select(.monitor == $m) | .id'); do
+    hyprctl dispatch "hl.dsp.workspace.move({ workspace = \"$workspace\", monitor = \"$OUTPUT\" })" >/dev/null || true
+  done
+done
