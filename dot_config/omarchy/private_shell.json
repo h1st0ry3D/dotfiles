@@ -25,7 +25,7 @@
           "id": "omarchy.clock",
           "format": "ddd | d. MMM yyyy | HH:mm",
           "formatAlt": "d MMMM 'W'ww yyyy",
-          "verticalFormat": "HH\n\u2014\nmm"
+          "verticalFormat": "HH\n—\nmm"
         },
         {
           "id": "omarchy.keyboard-layout"
@@ -46,16 +46,22 @@
           "hidden": []
         },
         {
-          "id": "h1st0ry3d.odisplay"
+          "id": "h1st0ry3d.odaysy"
         },
         {
           "id": "h1st0ry3d.opushy"
         },
         {
-          "id": "h1st0ry3d.ojumpy"
+          "id": "h1st0ry3d.oshelly"
         },
         {
           "id": "h1st0ry3d.owalky"
+        },
+        {
+          "id": "h1st0ry3d.odisplay"
+        },
+        {
+          "id": "h1st0ry3d.ojumpy"
         },
         {
           "id": "explify.syncthing"
