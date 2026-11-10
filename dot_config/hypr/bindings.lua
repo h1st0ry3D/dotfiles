@@ -60,7 +60,7 @@ o.bind("XF86PowerOff", "Shutdown", "omarchy system shutdown", { locked = true })
 -- and is free to use as a modifier.
 
 -- Caps + 1..4: launch the app, or focus it if it is already running.
-o.bind("MOD3 + 1", "T3 Code (Nightly)", { focus = "t3code", launch = "t3code-nightly" })
+o.bind("MOD3 + 1", "T3 Code", { focus = "t3code", launch = "t3code" })
 o.bind("MOD3 + 2", "SourceGit", { focus = "sourcegit", launch = "sourcegit" })
 o.bind("MOD3 + 3", "VS Code", { focus = "^Code$", launch = "code" })
 o.bind("MOD3 + 4", "Brave Origin", { focus = "brave-origin", launch = "brave-origin" })
@@ -163,3 +163,7 @@ o.bind("ALT + mouse:273", "Resize window", hl.dsp.window.resize(), { mouse = tru
 o.bind("CTRL + ALT + 1", "Odisplay: usbc", "odisplay switch usbc")
 o.bind("CTRL + ALT + 2", "Odisplay: dp", "odisplay switch dp")
 o.bind("CTRL + ALT + 3", "Odisplay: hdmi", "odisplay switch hdmi")
+
+-- Oappy: the running apps, with an X on each row that quits it. SUPER + ESCAPE
+-- is the system menu, so this takes the mac chord's other modifier.
+o.bind("SUPER + ALT + ESCAPE", "Force quit apps", "omarchy-shell shell toggle h1st0ry3d.oappy")

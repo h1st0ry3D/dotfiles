@@ -1,6 +1,8 @@
 -- Extra autostart processes.
 -- o.launch_on_start("my-service")
 
+o.launch_on_start("t3code")
+
 -- Persistent headless output so a stream survives the monitor being switched off
 -- (see monitors.lua and ~/.local/bin/hypr-stream-headless).
 hl.on("hyprland.start", function()
