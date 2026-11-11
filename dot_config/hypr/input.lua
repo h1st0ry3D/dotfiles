@@ -20,6 +20,21 @@ hl.config({
   },
 })
 
+-- Numpad "," -> "." lives in a custom XKB keymap, not in a keybind.
+-- Hyprland's synthetic key injection (send_shortcut / send_key_state) finishes
+-- with sendKeyboardMods(0, 0, 0, 0), which reports "no NumLock" to every
+-- client. After one injected key the numpad digits decode as KP_Home/KP_End/...
+-- and stop typing digits until NumLock is toggled off and on again. Remapping
+-- the keysym in the keymap produces "." without touching the modifier state.
+-- NOTE: while kb_file is set, kb_layout/kb_variant/kb_options above are ignored;
+-- they are baked into ~/.config/hypr/keymap.xkb instead. Hyprland expands a
+-- leading "~" itself; it does not expand $HOME.
+hl.config({
+  input = {
+    kb_file = "~/.config/hypr/keymap.xkb",
+  },
+})
+
 -- Keyboard layout and options.
 -- See https://wiki.hypr.land/Configuring/Basics/Variables/#input
 -- hl.config({

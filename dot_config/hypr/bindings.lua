@@ -128,15 +128,11 @@ o.bind("ALT + L", "@ symbol", send_shortcut_once("MOD5", "q"))
 o.bind("ALT + 7", "| pipe symbol", send_shortcut_once("MOD5", "less"))
 o.bind("ALT + N", "~ tilde symbol", send_shortcut_once("MOD5", "plus"))
 
--- Numpad "," key -> "." (US numpad behaviour).
--- On the German layout the numpad key after the wide 0 (XKB <KPDL>, evdev 83)
--- emits KP_Separator (a comma) with NumLock off and KP_Delete (a period) with
--- NumLock on, so both keysyms are bound to always produce ".". The German
--- keymap defines no KP_Comma at all, which is why a KP_Comma bind never fires.
--- "period" is an XKB keysym name, resolved by send_key_state the same way the
--- "less"/"plus" binds above are.
-o.bind("KP_Separator", "Numpad . (period)", send_shortcut_once("", "period"))
-o.bind("KP_Delete", "Numpad . (period, NumLock on)", send_shortcut_once("", "period"))
+-- Numpad "," key -> "." is done in the XKB keymap (~/.config/hypr/keymap.xkb,
+-- wired up through input:kb_file in input.lua), not with a bind here. Binding
+-- it and injecting "period" made the numpad digits stop typing until NumLock
+-- was toggled, because the injected key leaves the client-visible modifier
+-- state at 0 and NumLock is a lock modifier, so nothing restores it.
 
 -- Mac-style brackets/braces on the German layout (AltGr is Mod5):
 -- AltGr+8 = [, AltGr+9 = ], AltGr+7 = {, AltGr+0 = }.

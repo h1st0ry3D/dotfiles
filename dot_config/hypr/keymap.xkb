@@ -1,0 +1,22 @@
+// Custom XKB keymap for this machine - referenced from input.lua via
+// input:kb_file. While kb_file is set, Hyprland ignores input:kb_layout,
+// input:kb_variant and input:kb_options, so everything needed is included
+// here explicitly. If you change the layout or the kb_options in input.lua,
+// change them here too.
+//
+// Layout:     de
+// kb_options: caps:hyper, shift:both_capslock_cancel
+// Change:     numpad "," (<KPDL>, evdev 83) emits "." on every level, so it
+//             behaves the same with NumLock on and off. Stock de has
+//             <KPDL> = [ KP_Separator, KP_Delete ] (comma / Delete).
+//             Use [ KP_Delete, period ] instead if you want to keep Delete
+//             with NumLock on.
+xkb_keymap {
+    xkb_keycodes { include "evdev+aliases(qwertz)" };
+    xkb_types    { include "complete" };
+    xkb_compat   { include "complete" };
+    xkb_symbols  { include "pc+de+inet(evdev)+capslock(hyper)+shift(both_capslock_cancel)"
+                   key.type[Group1]="KEYPAD";
+                   key <KPDL> { [ period, period ] };
+    };
+};
