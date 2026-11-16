@@ -23,29 +23,6 @@ hl.env("AVALONIA_SCREEN_SCALE_FACTORS", "eDP-1=" .. omarchy_avalonia_scale)
 -- workspace, so windows can vanish onto a fake second screen. Disable it.
 hl.monitor({ output = "eDP-2", disabled = true })
 
--- Virtual output for Sunshine/Moonlight, created at start by
--- ~/.local/bin/hypr-stream-headless (see autostart.lua).
---
--- Powering the external monitor off drops its DisplayPort link, Hyprland ends
--- up with no outputs at all and stops rendering, so Moonlight shows black. All
--- workspaces live on STREAM, and the real panel mirrors it, so the session keeps
--- a display to draw into no matter what the panel is doing.
---
--- Mode must match the Dell rule below, otherwise the mirrored picture is
--- squished. Refresh rate too: the mirror is paced by its source, so a 60 Hz
--- STREAM would cap the panel at 60 Hz.
-hl.monitor({ output = "STREAM", mode = "2560x1440@144", position = "0x0", scale = omarchy_monitor_scale })
-
--- Pin every workspace to STREAM. A mirroring output holds no visible
--- workspaces, but Hyprland still hands a newly connected one the lowest free
--- workspace number -- so the Dell coming back could grab (and hide) workspace 1,
--- where its windows then vanish. Binding them here means the panel can only ever
--- be a mirror. On a machine without STREAM (the desktop) the rules bind to
--- nothing and are ignored.
-for workspace = 1, 10 do
-  hl.workspace_rule({ workspace = tostring(workspace), monitor = "STREAM" })
-end
-
 -- Adaptive-Sync (VRR) on the Dell S2725DC. Shared by both machines, so nothing
 -- here may name a connector or a GPU. The panel advertises VRR over every
 -- transport it is likely to be plugged into -- an AMD FreeSync VSDB (48-144 Hz)
@@ -61,16 +38,38 @@ end
 -- no longer adapts; 144 Hz still applies. Worth it: the alternative is a dead
 -- stream whenever the panel is switched off.
 -- vrr: 0 = off, 1 = always, 2 = fullscreen windows only, 3 = fullscreen games/video only.
--- mirror: the panel is a pure mirror of STREAM, so it holds no workspaces of
--- its own -- unplugging or switching it off cannot take the desktop with it.
--- A mirror is ignored when its target is absent, so on a machine without STREAM
--- (the desktop) this rule behaves exactly like a plain monitor rule. Keep
--- position = auto for the same reason: a mirror does not consume layout space,
--- but a plain output does.
-hl.monitor({ output = "desc:Dell Inc. DELL S2725DC", mode = "2560x1440@144", position = "auto", scale = omarchy_monitor_scale, vrr = 1, mirror = "STREAM" })
+-- mirror: applied at runtime by ~/.local/bin/ostreamy (and by the
+-- sunshine-stream-watch service) only while a Moonlight client is connected.
+-- It is deliberately NOT in this rule: Hyprland can add a mirror with a rule but
+-- cannot clear one by re-applying a rule, so keeping it here left the panel
+-- stuck mirroring STREAM after a stream ended. Clearing it takes a reload with
+-- this rule mirror-free, which is what `ostreamy off` does.
+-- While mirroring, the panel holds no workspaces of its own, so switching it off
+-- cannot take the desktop with it.
+hl.monitor({ output = "desc:Dell Inc. DELL S2725DC", mode = "2560x1440@144", position = "0x0", scale = omarchy_monitor_scale, vrr = 1 })
 
 -- Configure a specific monitor.
 -- hl.monitor({ output = "DP-2", mode = "2560x1440@144", position = "0x0", scale = 1 })
 
 -- Portrait/rotated secondary monitor (transform: 1 = 90°, 3 = 270°).
 -- hl.monitor({ output = "DP-2", mode = "preferred", position = "auto", scale = 1, transform = 1 })
+
+-- >>> ostreamy >>>
+-- Ostreamy: persistent headless output captured by Sunshine.
+--
+-- Inserted by install.sh between "# >>> Ostreamy >>>" markers, and removed again by
+-- uninstall.sh. Keep this block free of mirror settings: a runtime mirror cannot be
+-- cleared by re-applying a rule, so Ostreamy switches the mirror at runtime with
+-- `hyprctl eval` and clears it with `hyprctl reload` (which lands here, mirror-free).
+--
+-- The output is parked at a negative x so it can never overlap the primary output:
+-- two enabled outputs at the same origin make Hyprland warn about an invalid layout
+-- and send pointer input to the invisible one. The primary output's own
+-- position = "auto" then places it at 0,0.
+--
+-- It stays ENABLED at all times. Sunshine resolves output_name only at session
+-- start and silently falls back to monitors[0] if the target is missing; the
+-- resolution then changes under the live encoder and the video freezes while input
+-- keeps working.
+hl.monitor({ output = "STREAM", mode = "1920x1200@60", position = "-1920x0", scale = 1 })
+-- <<< ostreamy <<<
