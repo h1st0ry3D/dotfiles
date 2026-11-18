@@ -1,0 +1,18 @@
+[Service]
+# Sunshine's init asks xdg-desktop-portal for a ScreenCast session before it
+# starts the HTTP/RTSP servers. After a reboot the portal has no valid restore
+# token, so it spawns hyprland-preview-share-picker and waits for a human to
+# click a monitor - and the only output here is the headless STREAM, which
+# nobody can see. Sunshine then waits forever: no ports bound, Moonlight shows
+# the host as offline.
+#
+# Capture on this host is wlgrab (see "Selected monitor [] for streaming"), so
+# the portal is only used for that init-time display enumeration. Hiding the
+# session bus from this unit makes the portal probe fail immediately instead of
+# blocking on an unanswerable dialog. Nothing else Sunshine does needs the
+# session bus at runtime; the tray icon degrades, streaming does not.
+InaccessiblePaths=-/run/user/1000/bus
+
+# STREAM must exist before capture opens: output_name is resolved once, at
+# session start.
+ExecStartPre={{ .chezmoi.homeDir }}/.local/bin/ostreamy-ensure-wait

@@ -1,0 +1,45 @@
+#!/bin/bash
+# Wait for Hyprland to be reachable, then make sure the headless capture output
+# (STREAM) exists before Sunshine starts. Sunshine resolves output_name only at
+# session start, so a missing output means it captures the wrong thing (or
+# nothing) for the whole session.
+#
+# Used as ExecStartPre by the Sunshine user unit. Always exits 0: a failed
+# ensure must not keep Sunshine from starting, it only degrades capture.
+
+set -u
+
+SELF_DIR=$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)
+OSTREAMY=${OSTREAMY:-$SELF_DIR/ostreamy}
+OUTPUT=${OUTPUT:-STREAM}
+
+log() { printf 'ostreamy-ensure-wait: %s\n' "$*" >&2; }
+
+# A Hyprland restart leaves a stale signature in the user manager's environment,
+# so resolve it from the instance list on every attempt.
+resolve_sig() {
+  local sig
+  sig=$(hyprctl instances -j 2>/dev/null | jq -r 'sort_by(.time) | last | .instance // empty' 2>/dev/null)
+  [ -n "$sig" ] && export HYPRLAND_INSTANCE_SIGNATURE="$sig"
+  [ -n "$sig" ]
+}
+
+have_output() {
+  hyprctl -j monitors 2>/dev/null |
+    jq -e --arg n "$OUTPUT" 'any(.[]; .name == $n)' >/dev/null 2>&1
+}
+
+# 0.25 s * 240 = 60 s ceiling. Hyprland normally answers well within 5 s.
+for _ in $(seq 1 240); do
+  if resolve_sig && have_output; then
+    "$OSTREAMY" ensure >/dev/null 2>&1 || log "ensure failed (output already present)"
+    exit 0
+  fi
+  if resolve_sig; then
+    "$OSTREAMY" ensure >/dev/null 2>&1 && have_output && { log "created $OUTPUT"; exit 0; }
+  fi
+  sleep 0.25
+done
+
+log "gave up waiting for $OUTPUT after 60 s"
+exit 0

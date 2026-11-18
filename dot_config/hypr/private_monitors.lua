@@ -6,6 +6,7 @@ local omarchy_monitor_scale = 1
 
 hl.env("GDK_SCALE", tostring(omarchy_gdk_scale))
 hl.monitor({ output = "", mode = "preferred", position = "auto", scale = omarchy_monitor_scale })
+hl.monitor({ output = "HDMI-A-1", mode = "preferred", position = "auto", scale = 1.25 })
 
 -- Avalonia apps (SourceGit and other .NET GUIs) only speak X11, and
 -- xwayland.force_zero_scaling means Hyprland hands them the raw pixel grid
