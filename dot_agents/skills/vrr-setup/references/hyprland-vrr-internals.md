@@ -108,6 +108,11 @@ Two consequences:
 - **Last matching rule wins** — rules are scanned in reverse insertion order.
 - **Rules replace, not merge.** `get()` returns the matched rule wholesale, so an omitted
   field falls back to `CMonitorRule`'s default rather than the previous rule's value.
+- **Runtime rules are stored identically.** `add()` has no "file rule" flag: `hl.monitor()` from
+  `hyprctl eval` lands in the same `m_rules` vector, survives later evals, and outranks the file's
+  rule for the rest of the session. Only `hyprctl reload` (which rebuilds the list from the config)
+  clears them. That is why a runtime `disabled = true` can appear to "stick" even after the enabled
+  rule is re-applied — see gotcha 1c in `SKILL.md`.
 
 Defaults that make partial rules safe: `m_resolution = Vector2D()` means "preferred mode",
 `m_scale = -1` means auto-scale, `m_offset = Vector2D(-INT32_MAX, -INT32_MAX)` means auto-position.

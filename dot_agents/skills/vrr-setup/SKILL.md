@@ -4,11 +4,16 @@ description: >
   Diagnose, enable, and verify VRR (variable refresh rate) on Linux/Hyprland —
   AMD FreeSync, NVIDIA G-Sync Compatible, Adaptive-Sync. Covers checking whether a
   monitor and GPU can do VRR at all, writing the Hyprland monitor rule, confirming
-  the kernel accepted it, and testing that the panel actually varies refresh.
-  Triggers: VRR, FreeSync, Adaptive Sync, adaptive-sync, variable refresh, G-Sync
-  Compatible, monitor flickering, screen tearing, judder, "raise refresh rate",
-  Hyprland monitor config, vrr in monitors.lua, gamescope VRR, "is VRR working".
-  Pairs with the omarchy skill for editing ~/.config/hypr/.
+  the kernel accepted it, and testing that the panel actually varies refresh. Also
+  the fast path for the classic complaint: brightness flicker that appears in a
+  game, persists after it closes, and stops while the mouse moves — that is a
+  `vrr = 1` rule on a refresh-sensitive panel, fixed by `vrr = 2`. Triggers: VRR,
+  FreeSync, Adaptive Sync, adaptive-sync, variable refresh, G-Sync Compatible,
+  monitor flickering, flickering brightness, backlight flicker, "flicker stops when
+  I move the mouse", screen flickers after quitting a game, desktop flicker, screen
+  tearing, judder, "raise refresh rate", Hyprland monitor config, vrr in
+  monitors.lua, gamescope VRR, "is VRR working". Pairs with the omarchy skill for
+  editing ~/.config/hypr/.
 metadata:
   tags: vrr, freesync, adaptive-sync, gsync, hyprland, monitors, amdgpu, drm, wayland, omarchy
 ---
@@ -25,6 +30,53 @@ Four separate claims get conflated when people say "is VRR working". Keep them a
 | 4 | The *panel physically varies* | Human A/B perception, or root + a DRM state read |
 
 Most troubleshooting never gets past #2. Only #4 proves the display hardware responded.
+
+## Flicker first: `vrr = 2`, not `1`
+
+Before any of the four claims: **"my screen flickers, and it stops when I move the mouse"** is a
+VRR *mode* problem, and the fix is one integer. This is the single highest-yield thing in this skill.
+
+Symptom signature (all of it, on a panel whose brightness tracks refresh rate):
+
+- flicker appears while gaming and **persists after the game is closed** — `vrr = 1` never hands the
+  panel back, so a static desktop keeps adaptive sync engaged
+- flicker **stops while the mouse moves** — damage raises the refresh, and the flicker band is the
+  low end of the range, not the high end
+- flicker is brightness modulation, not tearing, not blanking, not a lost signal
+- switching the monitor to **another input** stops it — the other source is not driving VRR
+
+Mechanism: on a static screen Hyprland stops committing frames, the panel latches to its VRR floor
+(~48 Hz on a 48–144 panel), and each isolated repaint jumps back to 144 Hz. Panels whose backlight
+or gamma shifts with refresh rate turn that step into visible flicker. Hyprland's own FAQ names it:
+
+> If your monitor has flickering brightness when you turn on VRR, change the VRR option to 2
+> (fullscreen), so that it is only used in games. This happens because the brightness on some
+> monitors can depend on the refresh rate, and rapidly changing refresh rates … will cause rapid
+> changes in brightness.
+
+So the rule that ends most of these tickets is:
+
+```lua
+hl.monitor({ output = "desc:...", mode = "2560x1440@144", position = "0x0", scale = 1, vrr = 2 })
+```
+
+`2` vs `3`: `2` is "fullscreen only", `3` additionally requires the client to advertise a `game` or
+`video` content type. Many XWayland games never set one, so `3` silently means "no VRR" for them.
+Prefer `2` unless you have checked that the games you care about report a content type.
+
+Verify both halves with `scripts/vrr-state.sh 2`, which cross-references `hyprctl monitors` with
+`hyprctl clients` and prints whether the live state matches the mode per output:
+
+| state | expected `vrr:` with mode 2 |
+|---|---|
+| static desktop | `false` |
+| maximized / full-width window | `false` (not fullscreen) |
+| fullscreen window | `true` |
+
+Residual flicker *inside* games at low framerate is the same panel behaviour, not a config error —
+the fixes are the game's own VRR switch, a monitor OSD "VRR off" profile, a higher in-game frame
+cap (keeps the panel in its quiet band), or raising VRRmin in the EDID (ArchWiki, "Variable refresh
+rate") which narrows the variable window at the cost of low-framerate smoothness.
 
 ## Workflow
 
@@ -93,7 +145,10 @@ hyprctl configerrors    # must be empty
 hyprctl monitors all | grep -E '^Monitor|^\s+model:|vrr:|^[0-9]+x'
 ```
 
-Expect the target refresh **and** `vrr: true` on the same monitor.
+Expect the target refresh **and** `vrr: true` on the same monitor — but only for `vrr = 1`. The
+field is the *live* `adaptiveSync` flag, not the rule's mode, so with `vrr = 2`/`3` a static desktop
+correctly prints `vrr: false`. Judge those modes with a fullscreen window present (see the table in
+the flicker section above), never by the desktop value alone.
 
 This is stronger evidence than it looks. In `MonitorRuleManager.cpp`, `ensureVRR()` does:
 
@@ -206,6 +261,27 @@ hyprctl monitors all | grep -E '^Monitor|vrr:'
 Anything in the hard list (`mode`, `scale`, `enable10bit`, `drmMode`, `disabled`) works too, but
 those change what you are testing. `position` is the cheapest nudge that is visually a no-op.
 
+Do **not** use `disabled` as the nudge unless you are ready to reload afterwards. Flipping it
+re-creates the output, and on a marginal link the monitor can come back disabled — see gotcha 1c for
+the recovery and why a plain re-apply does not clear it.
+
+**1c. A rule added at runtime outlives the config file — including `disabled`.** `hl.monitor()`
+from `hyprctl eval` is not ephemeral: `CMonitorRuleManager::add()` stores it in `m_rules` like any
+file rule, and because rules are scanned in reverse, a later runtime rule wins over the file's rule
+for the rest of the session. Observed on 0.56.2 with a Dell S2725DC on nvidia-drm/HDMI: after
+`hyprctl eval 'hl.monitor({ output = "desc:...", disabled = true })'`, re-applying the full
+enabled rule printed `ok`, showed the monitor enabled for a moment, and then the output was back to
+`disabled: true` — with nothing in journald, because core log output goes to UWSM stdout (gotcha 3).
+
+```bash
+hyprctl monitors all | grep -E '^Monitor|disabled:'   # the only reliable check
+hyprctl reload                                        # rebuilds m_rules from the file -> recovers
+```
+
+So: runtime `hl.monitor()` calls are a scratchpad for *verification*, and a `disabled`/`mirror`
+runtime rule should always be followed by a `reload` before you call the work done. Nudge `position`
+instead when all you want is a `vrr` re-evaluation.
+
 **2. `hyprctl keyword` is dead on the Lua config parser.** You will see
 `keyword can't work with non-legacy parsers`. Use `hyprctl eval '<lua>'`.
 
@@ -226,7 +302,30 @@ advertised range and makes both real use and testing obvious.
 `hl.dsp.focus({ window = "title:Foo" })`. Passing a bare `hyprctl dispatch focuswindow ...`
 gets wrapped into `hl.dispatch(...)` and fails to parse.
 
+A legacy positional dispatcher fails the same way, with a message that does not mention the fix:
+
+```bash
+hyprctl dispatch fullscreen 0
+# error: [string "return hl.dispatch(fullscreen 0)"]:1: ')' expected near '0'
+#  → Note: dispatch in lua is a shorthand for hl.dispatch(...), your syntax might need to be updated.
+```
+
+Use the namespaced form to create the fullscreen window the flicker test needs:
+
+```bash
+hyprctl eval 'hl.dispatch(hl.dsp.window.fullscreen({ mode = "fullscreen" }))'   # toggle
+hyprctl eval 'hl.dispatch(hl.dsp.window.fullscreen({ mode = "maximized" }))'    # full width
+```
+
+Running the failing form and then checking `hyprctl monitors` reads as "mode 2 does not engage VRR",
+because no window ever went fullscreen. Confirm the window state too, not just the panel:
+`hyprctl activewindow -j | jq .fullscreen` should be `2`.
+
 ## References
 
 - `references/hyprland-vrr-internals.md` — source paths and exact code for `ensureVRR`,
-  rule comparison, and why runtime `vrr` toggles fail.
+  rule comparison, rule storage/precedence, and why runtime `vrr` toggles fail.
+- `scripts/vrr-state.sh` — read-only: per-output live `vrr:` vs what the mode implies, plus
+  `configerrors`. The fastest way to answer "did my fix actually land".
+- Hyprland FAQ, "My monitor has flickering brightness when I turn on VRR" — the upstream wording
+  behind the `vrr = 2` fix.
