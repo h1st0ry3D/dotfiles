@@ -38,7 +38,19 @@ hl.monitor({ output = "eDP-2", disabled = true })
 -- With the mirror below the panel is paced by STREAM instead, so adaptive sync
 -- no longer adapts; 144 Hz still applies. Worth it: the alternative is a dead
 -- stream whenever the panel is switched off.
--- vrr: 0 = off, 1 = always, 2 = fullscreen windows only, 3 = fullscreen games/video only.
+-- vrr: -1 = follow misc:vrr, 0 = off, 1 = always, 2 = fullscreen windows only,
+--      3 = fullscreen windows with video/game content type.
+--
+-- Set to 2, NOT 1. The S2725DC's panel brightness shifts with refresh rate, so with
+-- VRR engaged on the desktop every repaint after an idle period makes the backlight
+-- flicker. The trigger is that Hyprland lets the refresh fall to the panel's VRR
+-- floor (~48 Hz) while the screen is static, then jumps to 144 Hz on the next
+-- damage event -- which is exactly why moving the mouse fast stops the flicker and
+-- why it can persist after the game is long closed. 2 keeps the desktop locked at
+-- the fixed 144 Hz mode and only hands the panel to VRR while something is
+-- fullscreen. This is the fix Hyprland's own FAQ prescribes for VRR brightness
+-- flicker. Prefer 2 over 3: 3 needs the client to advertise a game/video content
+-- type and many XWayland games never do, so they would silently get no VRR.
 -- mirror: applied at runtime by ~/.local/bin/ostreamy (and by the
 -- sunshine-stream-watch service) only while a Moonlight client is connected.
 -- It is deliberately NOT in this rule: Hyprland can add a mirror with a rule but
@@ -47,7 +59,7 @@ hl.monitor({ output = "eDP-2", disabled = true })
 -- this rule mirror-free, which is what `ostreamy off` does.
 -- While mirroring, the panel holds no workspaces of its own, so switching it off
 -- cannot take the desktop with it.
-hl.monitor({ output = "desc:Dell Inc. DELL S2725DC", mode = "2560x1440@144", position = "0x0", scale = omarchy_monitor_scale, vrr = 1 })
+hl.monitor({ output = "desc:Dell Inc. DELL S2725DC", mode = "2560x1440@144", position = "0x0", scale = omarchy_monitor_scale, vrr = 2 })
 
 -- Configure a specific monitor.
 -- hl.monitor({ output = "DP-2", mode = "2560x1440@144", position = "0x0", scale = 1 })

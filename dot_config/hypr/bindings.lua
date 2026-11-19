@@ -163,3 +163,12 @@ o.bind("CTRL + ALT + 3", "Odisplay: hdmi", "odisplay switch hdmi")
 -- Oappy: the running apps, with an X on each row that quits it. SUPER + ESCAPE
 -- is the system menu, so this takes the mac chord's other modifier.
 o.bind("SUPER + ALT + ESCAPE", "Force quit apps", "omarchy-shell shell toggle h1st0ry3d.oappy")
+
+-- Full screen on SUPER + ALT + SHIFT + F.
+-- Omarchy's own "Full screen" (SUPER + F) is unbound above in favour of Find,
+-- and SUPER + CTRL + F is the *tiled* variant, so none of the stock chords was
+-- actually doing a plain fullscreen toggle. The machine-wide default on this
+-- chord is File manager (cwd); SUPER + SHIFT + F still opens the file manager,
+-- so giving it up costs nothing.
+hl.unbind("SUPER + ALT + SHIFT + F")
+o.bind("SUPER + ALT + SHIFT + F", "Full screen", hl.dsp.window.fullscreen({ mode = "fullscreen" }))
