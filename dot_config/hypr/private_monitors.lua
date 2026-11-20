@@ -6,7 +6,7 @@ local omarchy_monitor_scale = 1
 
 hl.env("GDK_SCALE", tostring(omarchy_gdk_scale))
 hl.monitor({ output = "", mode = "preferred", position = "auto", scale = omarchy_monitor_scale })
-hl.monitor({ output = "HDMI-A-1", mode = "preferred", position = "auto", scale = 1.25 })
+hl.monitor({ output = "HDMI-A-1", mode = "preferred", position = "auto", scale = 1 })
 
 -- Avalonia apps (SourceGit and other .NET GUIs) only speak X11, and
 -- xwayland.force_zero_scaling means Hyprland hands them the raw pixel grid
@@ -75,14 +75,22 @@ hl.monitor({ output = "desc:Dell Inc. DELL S2725DC", mode = "2560x1440@144", pos
 -- cleared by re-applying a rule, so Ostreamy switches the mirror at runtime with
 -- `hyprctl eval` and clears it with `hyprctl reload` (which lands here, mirror-free).
 --
--- The output is parked at a negative x so it can never overlap the primary output:
--- two enabled outputs at the same origin make Hyprland warn about an invalid layout
--- and send pointer input to the invisible one. The primary output's own
--- position = "auto" then places it at 0,0.
+-- The output is parked far to the right of the panel, with a gap. Two reasons:
+--
+-- 1. Two enabled outputs at the same origin make Hyprland warn about an invalid
+--    layout and send pointer input to the invisible one.
+-- 2. A parked, unmirrored output is a live layout region. Flush against the panel,
+--    the pointer leaves the panel at the shared edge, input:follow_mouse = 1 focuses
+--    the hidden output, its workspace becomes active and the cursor is warped back to
+--    the middle of the screen. Hyprland clamps the pointer to the *nearest* monitor,
+--    so a gap wider than one pointer motion event makes the output unreachable.
+--
+-- PARK_X is only a fallback here: `ostreamy ensure`/`on`/`off` re-apply a park that
+-- widens automatically if the panel's right edge would come within 1500 px.
 --
 -- It stays ENABLED at all times. Sunshine resolves output_name only at session
 -- start and silently falls back to monitors[0] if the target is missing; the
 -- resolution then changes under the live encoder and the video freezes while input
 -- keeps working.
-hl.monitor({ output = "STREAM", mode = "1920x1200@60", position = "-1920x0", scale = 1 })
+hl.monitor({ output = "STREAM", mode = "1920x1200@60", position = "6000x0", scale = 1 })
 -- <<< ostreamy <<<

@@ -32,3 +32,11 @@ PORTS="47984 47989 48010"
 
 # Seconds to let Hyprland settle between layout steps during a switch.
 PUMP=1
+
+# Where the headless output is parked while idle. Must stay clear of the panel: a
+# parked output flush against it is a pointer-reachable layout region, and crossing
+# the edge focuses STREAM, activating its workspace ("mouse at the border switches
+# workspace and jumps to the middle"). Hyprland clamps the pointer to the nearest
+# monitor, so the gap is the protection. Ostreamy widens this automatically when the
+# panel's right edge would come within 1500 px.
+PARK_X=6000
